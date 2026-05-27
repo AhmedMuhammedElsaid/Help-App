@@ -1,0 +1,90 @@
+{
+  "Common": {
+    "appName": "ساعد",
+    "tagline": "ساعد المحتاجين، حالة بحالة",
+    "donateNow": "تبرع الآن",
+    "learnMore": "اعرف المزيد",
+    "back": "رجوع",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "loading": "جاري التحميل...",
+    "saving": "جاري الحفظ...",
+    "verified": "موثق"
+  },
+  "Header": {
+    "home": "الرئيسية",
+    "cases": "الحالات",
+    "admin": "لوحة التحكم",
+    "signIn": "تسجيل الدخول",
+    "language": "اللغة",
+    "languageEn": "English",
+    "languageAr": "العربية"
+  },
+  "Footer": {
+    "tagline": "نمكّن المجتمعات من خلال العطاء المباشر والشفاف.",
+    "navigation": "التصفح",
+    "contact": "تواصل معنا",
+    "rights": "جميع الحقوق محفوظة."
+  },
+  "Home": {
+    "heroTitle": "كن سببًا في تغيير حياة",
+    "heroSubtitle": "تصفح الحالات الموثقة التي تحتاج لدعمك. كل تبرع يصل مباشرة إلى أصحابه عبر واتساب.",
+    "browseCases": "تصفح الحالات",
+    "casesHeading": "حالات بحاجة لمساعدتك",
+    "casesSubheading": "أشخاص حقيقيون، قصص حقيقية، أثر حقيقي. اختر حالة وتواصل مباشرة عبر واتساب.",
+    "noCases": "لا توجد حالات نشطة حاليًا. يرجى المتابعة لاحقًا."
+  },
+  "Case": {
+    "raised": "تم جمعه",
+    "goal": "من أصل {goal}",
+    "funded": "تم تمويل {percent}%",
+    "daysLeft": "متبقي {days} يوم",
+    "shareCase": "مشاركة الحالة",
+    "donateViaWhatsApp": "تبرع عبر واتساب",
+    "messagePrefix": "السلام عليكم، أرغب في التبرع للحالة:"
+  },
+  "Auth": {
+    "loginTitle": "تسجيل دخول المسؤول",
+    "loginDescription": "أدخل بياناتك للوصول إلى لوحة التحكم.",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "login": "دخول",
+    "loggingIn": "جاري تسجيل الدخول...",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة."
+  },
+  "Admin": {
+    "dashboard": "لوحة التحكم",
+    "dashboardSubtitle": "إدارة الحالات ومتابعة النشاط",
+    "newCase": "حالة جديدة",
+    "totalCases": "إجمالي الحالات",
+    "activeCases": "الحالات النشطة",
+    "totalRaised": "إجمالي ما تم جمعه",
+    "yourCases": "حالاتك",
+    "noCases": "لم تقم بإضافة أي حالة بعد.",
+    "createFirst": "أضف أول حالة",
+    "view": "عرض",
+    "signOut": "تسجيل الخروج"
+  },
+  "CaseForm": {
+    "newTitle": "إضافة حالة جديدة",
+    "editTitle": "تعديل الحالة",
+    "header": "عنوان الحالة",
+    "headerPlaceholder": "مثال: ساعدوا أحمد في علاج السرطان",
+    "slug": "رابط الحالة (Slug)",
+    "slugHint": "يُولَّد تلقائيًا من العنوان — يُستخدم في رابط الحالة",
+    "description": "الوصف",
+    "descriptionPlaceholder": "اشرح تفاصيل الحالة، سبب الحاجة للمساعدة، وكيف سيُستخدم التبرع...",
+    "thumbnail": "رابط صورة الحالة",
+    "thumbnailHint": "ضع رابط صورة متاحة على الإنترنت",
+    "goalAmount": "المبلغ المستهدف (اختياري)",
+    "goalPlaceholder": "5000",
+    "status": "الحالة",
+    "statusActive": "نشطة",
+    "statusPaused": "متوقفة",
+    "statusCompleted": "مكتملة",
+    "createButton": "إضافة الحالة",
+    "updateButton": "تحديث الحالة"
+  }
+}

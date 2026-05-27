@@ -1,0 +1,90 @@
+{
+  "Common": {
+    "appName": "Help",
+    "tagline": "Help those in need, one case at a time",
+    "donateNow": "Donate Now",
+    "learnMore": "Learn More",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "verified": "Verified"
+  },
+  "Header": {
+    "home": "Home",
+    "cases": "Cases",
+    "admin": "Admin",
+    "signIn": "Sign In",
+    "language": "Language",
+    "languageEn": "English",
+    "languageAr": "العربية"
+  },
+  "Footer": {
+    "tagline": "Empowering communities through transparent, direct giving.",
+    "navigation": "Navigation",
+    "contact": "Contact",
+    "rights": "All rights reserved."
+  },
+  "Home": {
+    "heroTitle": "Make a Difference Today",
+    "heroSubtitle": "Browse verified cases that need your support. Every donation goes directly to the people who need it most via WhatsApp.",
+    "browseCases": "Browse Cases",
+    "casesHeading": "Cases That Need You",
+    "casesSubheading": "Real people, real stories, real impact. Choose a case and reach out directly on WhatsApp.",
+    "noCases": "No active cases right now. Please check back soon."
+  },
+  "Case": {
+    "raised": "raised",
+    "goal": "of {goal} goal",
+    "funded": "{percent}% funded",
+    "daysLeft": "{days} days left",
+    "shareCase": "Share this case",
+    "donateViaWhatsApp": "Donate via WhatsApp",
+    "messagePrefix": "Hello, I would like to donate to:"
+  },
+  "Auth": {
+    "loginTitle": "Admin Login",
+    "loginDescription": "Enter your credentials to access the admin dashboard.",
+    "email": "Email",
+    "password": "Password",
+    "login": "Login",
+    "loggingIn": "Logging in...",
+    "invalidCredentials": "Invalid email or password."
+  },
+  "Admin": {
+    "dashboard": "Dashboard",
+    "dashboardSubtitle": "Manage cases and track activity",
+    "newCase": "New Case",
+    "totalCases": "Total Cases",
+    "activeCases": "Active Cases",
+    "totalRaised": "Total Raised",
+    "yourCases": "Your Cases",
+    "noCases": "You haven't created any cases yet.",
+    "createFirst": "Create Your First Case",
+    "view": "View",
+    "signOut": "Sign Out"
+  },
+  "CaseForm": {
+    "newTitle": "Create New Case",
+    "editTitle": "Edit Case",
+    "header": "Case Header",
+    "headerPlaceholder": "e.g. Help Ahmed Receive Cancer Treatment",
+    "slug": "URL Slug",
+    "slugHint": "Auto-generated from the header — used in the case URL",
+    "description": "Description",
+    "descriptionPlaceholder": "Tell people about this case, why help is needed, and how their donation will be used...",
+    "thumbnail": "Thumbnail Image URL",
+    "thumbnailHint": "Paste a publicly accessible image URL",
+    "goalAmount": "Goal Amount (optional)",
+    "goalPlaceholder": "5000",
+    "status": "Status",
+    "statusActive": "Active",
+    "statusPaused": "Paused",
+    "statusCompleted": "Completed",
+    "createButton": "Create Case",
+    "updateButton": "Update Case"
+  }
+}
