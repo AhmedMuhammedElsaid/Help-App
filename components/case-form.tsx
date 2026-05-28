@@ -49,9 +49,11 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
   const [formData, setFormData] = useState({
     title: initialCase?.title ?? '',
     slug: initialCase?.slug ?? '',
+    payment_link: initialCase?.payment_link ?? '',
     description: initialCase?.description ?? '',
     imageUrl: initialCase?.image_url ?? '',
     goalAmount: initialCase?.goal_amount?.toString() ?? '',
+    currentAmount: initialCase?.current_amount?.toString() ?? '',
     status: (initialCase?.status ?? 'active') as CaseStatus,
   });
 
@@ -104,11 +106,16 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
     const payload = {
       title: formData.title,
       slug: formData.slug,
+      payment_link: formData.payment_link,
       description: formData.description || null,
       image_url: formData.imageUrl || null,
       goal_amount: formData.goalAmount
         ? Number(formData.goalAmount)
         : null,
+      currentAmount: formData.goalAmount
+        ? Number(formData.goalAmount)
+        : null,
+
       status: formData.status,
     };
 
@@ -220,7 +227,25 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
               required
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="paymentLink">
+              {t('CaseForm.paymentLink')} *
+            </Label>
 
+            <Textarea
+              id="paymentLink"
+              rows={6}
+              placeholder={t('CaseForm.paymentLinkPlaceholder')}
+              value={formData.payment_link}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  payment_link: e.target.value,
+                })
+              }
+              required
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="imageUrl">
               {t('CaseForm.thumbnail')}
@@ -263,7 +288,6 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
               <Label htmlFor="goalAmount">
                 {t('CaseForm.goalAmount')}
               </Label>
-
               <Input
                 id="goalAmount"
                 type="number"
@@ -279,7 +303,25 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
                 }
               />
             </div>
-
+            <div className="space-y-2">
+              <Label htmlFor="currentAmount">
+                {t('CaseForm.currentAmount')}
+              </Label>
+              <Input
+                id="currentAmount"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder={t('CaseForm.currentAmountPlaceholder')}
+                value={formData.currentAmount}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    currentAmount: e.target.value,
+                  })
+                }
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="status">
                 {t('CaseForm.status')}

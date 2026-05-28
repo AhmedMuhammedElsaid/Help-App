@@ -18,7 +18,7 @@ export function SiteHeader() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
             <Heart className="h-5 w-5 text-primary-foreground" fill="currentColor" />
           </div>
-          <span className="hidden sm:inline-block">{t('Common.appName')}</span>
+          <span className="inline-block">{t('Common.appName')}</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
@@ -38,9 +38,6 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
-          <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-            <Link href="/admin">{t('Header.admin')}</Link>
-          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -69,13 +66,6 @@ export function SiteHeader() {
               onClick={() => setMobileOpen(false)}
             >
               {t('Header.cases')}
-            </Link>
-            <Link
-              href="/admin"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
-              onClick={() => setMobileOpen(false)}
-            >
-              {t('Header.admin')}
             </Link>
           </nav>
         </div>

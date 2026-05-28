@@ -1,7 +1,7 @@
 {
   "Common": {
     "appName": "Help",
-    "tagline": "Help those in need, one case at a time",
+    "tagline": "Help",
     "donateNow": "Donate Now",
     "learnMore": "Learn More",
     "back": "Back",
@@ -26,7 +26,13 @@
     "tagline": "Empowering communities through transparent, direct giving.",
     "navigation": "Navigation",
     "contact": "Contact",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "developer": "Ahmed Elsaid",
+    "developedBy": "Developed By",
+    "whats": "WhatsApp",
+    "linkedIn": "LinkedIn",
+    "github": "GitHub",
+    "portfolio": "Portfolio"
   },
   "Home": {
     "heroTitle": "Make a Difference Today",
@@ -75,11 +81,16 @@
     "slug": "URL Slug",
     "slugHint": "Auto-generated from the header — used in the case URL",
     "description": "Description",
+    "paymentLink": "Payment Link",
+    "paymentLinkPlaceholder":"instapay or wallet number",
     "descriptionPlaceholder": "Tell people about this case, why help is needed, and how their donation will be used...",
     "thumbnail": "Thumbnail Image URL",
     "thumbnailHint": "Paste a publicly accessible image URL",
     "goalAmount": "Goal Amount (optional)",
     "goalPlaceholder": "5000",
+    "currentAmount": "Current Amount",
+    "currentAmountPlaceholder": "0",
+    "currency": "EGP",
     "status": "Status",
     "statusActive": "Active",
     "statusPaused": "Paused",

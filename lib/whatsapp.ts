@@ -12,8 +12,9 @@
 export function buildWhatsAppDonateUrl(
   messagePrefix: string,
   caseTitle: string,
+  whatsNum: string
 ): string {
-  const number = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '').replace(
+  const number = (whatsNum ? whatsNum : (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '')).replace(
     /[^0-9]/g,
     '',
   );

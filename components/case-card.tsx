@@ -1,3 +1,4 @@
+"use client";
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { Case } from '@/lib/types';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { buildWhatsAppDonateUrl } from '@/lib/whatsapp';
 import { Heart, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
-
+import { useRouter } from '@/i18n/navigation';
 interface CaseCardProps {
   caseItem: Case;
 }
@@ -20,13 +21,21 @@ export function CaseCard({ caseItem }: CaseCardProps) {
     ? Math.min(100, (Number(caseItem.current_amount) / Number(caseItem.goal_amount)) * 100)
     : 0;
 
+    const router = useRouter();
+
+const goToCase = () => {
+  router.push(`/case/${caseItem.slug}`);
+};
+
   const whatsappUrl = buildWhatsAppDonateUrl(
     t('Case.messagePrefix'),
     caseItem.title,
+    caseItem.payment_link ?? ''
   );
 
   return (
-    <Card className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:border-primary/50">
+    <Card   onClick={goToCase}
+ className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:border-primary/50">
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         {caseItem.image_url ? (
           <Image

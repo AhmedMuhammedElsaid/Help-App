@@ -20,6 +20,7 @@ export interface Case {
   created_at: string;
   updated_at: string;
   created_by: string | null;
+  payment_link: string | null;
 }
 
 export type CaseStatus = Case['status'];

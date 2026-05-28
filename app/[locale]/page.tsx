@@ -29,10 +29,10 @@ export default async function HomePage({
       <section className="relative overflow-hidden border-b bg-gradient-to-br from-primary/10 via-background to-accent/10">
         <div className="container mx-auto px-4 py-20 md:py-28">
           <div className="mx-auto max-w-3xl text-center space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-1.5 text-sm shadow-sm">
+            {/* <div className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-1.5 text-sm shadow-sm">
               <Heart className="h-4 w-4 text-primary" fill="currentColor" />
               <span className="text-muted-foreground">{t('Common.tagline')}</span>
-            </div>
+            </div> */}
             <h1 className="text-balance text-4xl font-bold tracking-tight md:text-6xl">
               {t('Home.heroTitle')}
             </h1>

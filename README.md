@@ -1,4 +1,4 @@
-# Hope Charity — Donation App
+# HELP — Donation App
 
 A bilingual (Arabic + English) charity donation website. Visitors browse verified cases, click **Donate via WhatsApp**, and chat directly with the person handling that case. No payment integration — every donation conversation is human-to-human over WhatsApp.
 

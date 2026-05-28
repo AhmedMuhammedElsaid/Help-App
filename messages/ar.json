@@ -1,7 +1,7 @@
 {
   "Common": {
     "appName": "ساعد",
-    "tagline": "ساعد المحتاجين، حالة بحالة",
+    "tagline": "ساعد",
     "donateNow": "تبرع الآن",
     "learnMore": "اعرف المزيد",
     "back": "رجوع",
@@ -26,7 +26,13 @@
     "tagline": "نمكّن المجتمعات من خلال العطاء المباشر والشفاف.",
     "navigation": "التصفح",
     "contact": "تواصل معنا",
-    "rights": "جميع الحقوق محفوظة."
+    "rights": "جميع الحقوق محفوظة.",
+    "developer": "م. أحمد السعيد",
+    "developedBy": "تم التطوير بواسطة",
+    "whats": "واتساب",
+    "linkedIn": "لينكدإن",
+    "github": "جيتهاب",
+    "portfolio": "بورتفوليو"
   },
   "Home": {
     "heroTitle": "كن سببًا في تغيير حياة",
@@ -78,13 +84,18 @@
     "descriptionPlaceholder": "اشرح تفاصيل الحالة، سبب الحاجة للمساعدة، وكيف سيُستخدم التبرع...",
     "thumbnail": "رابط صورة الحالة",
     "thumbnailHint": "ضع رابط صورة متاحة على الإنترنت",
-    "goalAmount": "المبلغ المستهدف (اختياري)",
+    "goalAmount": "المبلغ المستهدف",
     "goalPlaceholder": "5000",
+    "currentAmount":  "المبلغ الحالي (اختياري)",
+    "currentAmountPlaceholder": "0",
     "status": "الحالة",
+    "currency": "جنيه",
     "statusActive": "نشطة",
     "statusPaused": "متوقفة",
     "statusCompleted": "مكتملة",
     "createButton": "إضافة الحالة",
-    "updateButton": "تحديث الحالة"
+    "updateButton": "تحديث الحالة",
+    "paymentLink": "رابط الدفع",
+    "paymentLinkPlaceholder":"رقم المحفظة أو رابط الدفع"
   }
 }
