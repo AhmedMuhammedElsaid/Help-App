@@ -18,7 +18,8 @@ import { SiteFooter } from '@/components/site-footer';
 // @ts-expect-error CSS imports are handled by Next.js
 import '../globals.css';
 
-const SITE_URL = 'https://help-app-ahmed-elsaid.vercel.app/ar';
+// Base URL without locale – read from env for production
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://help-app-ahmed-elsaid.vercel.app';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -39,8 +40,11 @@ export async function generateMetadata({
   const title = t('appName');
   const description = t('tagline');
 
+  // Full canonical URL for this locale
+  const canonicalUrl = `${BASE_URL}/${locale}`;
+
   return {
-    metadataBase: new URL(SITE_URL),
+    metadataBase: new URL(BASE_URL),
 
     title: {
       default: title,
@@ -50,25 +54,41 @@ export async function generateMetadata({
     description,
 
     applicationName: title,
+    appleWebApp: {
+      capable: true,
+      title: title,
+      statusBarStyle: 'black-translucent',
+    },
+
+    formatDetection: {
+      telephone: false, // set to true if you want phone numbers to be links
+    },
 
     keywords: [
-      'donation',
-      'charity',
-      'islamic donations',
-      'help',
-      'fundraising',
-      'zakat',
-      'sadaqah',
+      'donation platform',
+      'charity donations',
+      'islamic charity',
+      'zakat donations',
+      'sadaqah platform',
+      'medical fundraising',
+      'help people in need',
+      'donation website',
+      'online charity platform',
+      'تبرعات',
+      'صدقة',
+      'زكاة',
+      'جمع تبرعات',
     ],
 
     authors: [
       {
         name: 'Ahmed Muhammed Elsaid',
+        url: 'https://ahmed-muhammed-elsaid.netlify.app',
       },
     ],
 
     creator: 'Ahmed Muhammed Elsaid',
-    publisher: 'https://ahmed-muhammed-elsaid.netlify.app/',
+    publisher: 'Ahmed Muhammed Elsaid',
 
     robots: {
       index: true,
@@ -83,40 +103,37 @@ export async function generateMetadata({
     },
 
     alternates: {
-      canonical: '/',
+      canonical: canonicalUrl,
       languages: {
-        en: '/en',
-        ar: '/ar',
+        en: `${BASE_URL}/en`,
+        ar: `${BASE_URL}/ar`,
+        'x-default': `${BASE_URL}/ar`, // fallback locale
       },
     },
 
     icons: {
       icon: [
-        {
-          url: '/heart.png',
-          type: 'image/png',
-        },
+        { url: '/heart.png', type: 'image/png' },
+        { url: '/favicon.ico', sizes: '32x32' }, // add a .ico for legacy
       ],
       shortcut: ['/heart.png'],
       apple: [
-        {
-          url: '/heart.png',
-          sizes: '180x180',
-          type: 'image/png',
-        },
+        { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
       ],
     },
 
+    manifest: '/manifest.json', // create one in /public
+
     openGraph: {
       type: 'website',
-      locale,
-      url: SITE_URL,
+      locale: locale === 'ar' ? 'ar_AR' : 'en_US',
+      url: canonicalUrl,
       siteName: title,
-      title,
-      description,
+      title: title,
+      description: description,
       images: [
         {
-          url: '/og-image.jpg',
+          url: '/og-image.jpg', // will be absolute via metadataBase
           width: 1200,
           height: 630,
           alt: title,
@@ -126,9 +143,10 @@ export async function generateMetadata({
 
     twitter: {
       card: 'summary_large_image',
-      title,
-      description,
-      images: ['/heart.png'],
+      title: title,
+      description: description,
+      images: ['/og-image.jpg'], // use a 1200x600 image, not heart.png
+      site: '@yourhandle', // optional: add your Twitter handle
     },
 
     category: 'charity',
@@ -136,6 +154,8 @@ export async function generateMetadata({
 }
 
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
   themeColor: '#ffffff',
   colorScheme: 'light',
 };
@@ -149,31 +169,23 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
 
-  if (
-    !routing.locales.includes(
-      locale as (typeof routing.locales)[number]
-    )
-  ) {
+  if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
     notFound();
   }
 
   setRequestLocale(locale);
-
   const messages = await getMessages();
 
   return (
-    <html
-      lang={locale}
-      dir={locale === 'ar' ? 'rtl' : 'ltr'}
-      suppressHydrationWarning
-    >
+    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
+      <head>
+        <meta charSet="utf-8" />
+        {/* Additional SEO meta can be added here if needed */}
+      </head>
       <body
         className={`min-h-screen flex flex-col font-sans antialiased ${GeistSans.variable} ${GeistMono.variable}`}
       >
-        <NextIntlClientProvider
-          locale={locale}
-          messages={messages}
-        >
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
