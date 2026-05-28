@@ -9,7 +9,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t bg-muted/30 mt-auto">
       <div className="container mx-auto px-4 py-10">
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-3">
             <Link href="/" className="flex items-center gap-2 font-bold text-lg">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
@@ -43,49 +43,64 @@ export function SiteFooter() {
             <p className="text-sm text-muted-foreground">
               {t("Footer.whats")}:{' '}
               <a
-                href={`https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '').replace(/[^0-9]/g, '')}`}
+                href={`https://wa.me/${('01025533447').replace(/[^0-9]/g, '')}`}
                 className="font-medium text-primary hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                +{(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '').replace(/[^0-9]/g, '')}
+                {('01025533447').replace(/[^0-9]/g, '')}
               </a>
             </p>
-                        <p className="text-sm text-muted-foreground">
-              {t("Footer.developedBy")}:{' '}
+            <p className="text-sm text-muted-foreground">
+              {t("Footer.whatsAlwaldan")}:{' '}
+              <a
+                href={`https://wa.me/${('01222395552').replace(/[^0-9]/g, '')}`}
+                className="font-medium text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {('01222395552').replace(/[^0-9]/g, '')}
+              </a>
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="font-semibold text-sm">{t("Footer.developedBy")}:              <a
+              href='https://ahmed-muhammed-elsaid.netlify.app'
+              className="font-medium text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('Footer.developer')}
+            </a></h3>
+
             <a
-                href='https://ahmed-muhammed-elsaid.netlify.app'
-                className="font-medium text-primary hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t('Footer.developer')}
-              </a>
-            </p>
-                 <a
-                href='https://www.linkedin.com/in/ahmedmuhammedelsaid/'
-                className="font-medium text-primary hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t('Footer.linkedIn')}
-              </a>
-                        <a
-                href='https://github.com/AhmedMuhammedElsaid'
-                className="font-medium text-primary hover:underline  mx-5"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t('Footer.github')}
-              </a>
-                          <a
-                href='https://ahmed-muhammed-elsaid.netlify.app'
-                className="font-medium text-primary hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t('Footer.portfolio')}
-              </a>
+              href='https://www.linkedin.com/in/ahmedmuhammedelsaid/'
+              className="font-medium text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('Footer.linkedIn')}
+            </a>
+
+            <a
+              href='https://ahmed-muhammed-elsaid.netlify.app'
+              className="font-medium text-primary hover:underline mx-5"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('Footer.portfolio')}
+            </a>
+
+            <a
+              href='https://github.com/AhmedMuhammedElsaid'
+              className="font-medium text-primary hover:underline "
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('Footer.github')}
+            </a>
+
           </div>
         </div>
 
