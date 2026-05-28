@@ -43,23 +43,23 @@ export function SiteFooter() {
             <p className="text-sm text-muted-foreground">
               {t("Footer.whats")}:{' '}
               <a
-                href={`https://wa.me/${('01025533447').replace(/[^0-9]/g, '')}`}
+                href={`https://wa.me/${('+201025533447').replace(/[^0-9]/g, '')}`}
                 className="font-medium text-primary hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {('01025533447').replace(/[^0-9]/g, '')}
+                01025533447
               </a>
             </p>
             <p className="text-sm text-muted-foreground">
               {t("Footer.whatsAlwaldan")}:{' '}
               <a
-                href={`https://wa.me/${('01222395552').replace(/[^0-9]/g, '')}`}
+                href={`https://wa.me/${('+201222395552').replace(/[^0-9]/g, '')}`}
                 className="font-medium text-primary hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {('01222395552').replace(/[^0-9]/g, '')}
+              01222395552
               </a>
             </p>
           </div>

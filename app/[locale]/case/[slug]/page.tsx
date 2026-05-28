@@ -51,7 +51,8 @@ export default async function CasePage({ params }: PageProps) {
 
   const whatsappUrl = buildWhatsAppDonateUrl(
     t('Case.messagePrefix'),
-    caseItem.title
+    caseItem.title,
+    caseItem.payment_link ?? ''
   );
 
   const imageUrl = caseItem.image_url?.trim();
@@ -136,13 +137,13 @@ export default async function CasePage({ params }: PageProps) {
                 <div className="space-y-2">
                   <div className="flex items-baseline justify-between text-sm">
                     <span className="text-2xl font-bold">
-                      {current.toLocaleString()} {caseItem.currency}
+                      {current.toLocaleString()} {t("CaseForm.currency")}
                     </span>
                   </div>
 
                   <p className="text-sm text-muted-foreground">
                     {t('Case.goal', {
-                      goal: `${goal.toLocaleString()} ${caseItem.currency}`,
+                      goal: `${goal.toLocaleString()} ${t("CaseForm.currency")}`,
                     })}
                   </p>
 

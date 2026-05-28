@@ -3,7 +3,7 @@
     "appName": "Help",
     "tagline": "Help",
     "donateNow": "Donate Now",
-    "learnMore": "Learn More",
+    "learnMore": "Read Details",
     "back": "Back",
     "cancel": "Cancel",
     "save": "Save",
@@ -45,7 +45,7 @@
   },
   "Case": {
     "raised": "raised",
-    "goal": "of {goal} goal",
+    "goal": " From {goal}",
     "funded": "{percent}% funded",
     "daysLeft": "{days} days left",
     "shareCase": "Share this case",
