@@ -29,7 +29,13 @@ The codebase was bootstrapped from [`srddevj/givehope-donation-portal`](https://
 | Database | Supabase (Postgres) | latest |
 | Auth | Supabase Auth (email/password) | — |
 | Forms | react-hook-form + zod | ^7.60 / ^3.25 |
+| Fonts | Geist Sans + Geist Mono (`geist`) | latest |
+| Analytics | `@vercel/analytics` | latest |
+| Sitemap / robots | native `app/sitemap.ts` + `app/robots.ts` (dynamic) | — |
+| Theming | `next-themes` (installed, **not wired up**) | ^0.4 |
 | Package manager | pnpm | — |
+
+> **Currency note**: although the DB column `currency` defaults to `'USD'`, the app is Egypt-focused. The case form writes `currency: t('CaseForm.currency')` which is **`"EGP"`** in both locales, and WhatsApp numbers get a hardcoded **`+2`** (Egypt) country-code prefix (see §6).
 
 Tailwind 4 supports **logical CSS properties** (`ms-*`, `me-*`, `ps-*`, `pe-*`, `start-*`, `end-*`) which auto-flip under `dir="rtl"`. **Use those instead of `ml-/mr-/pl-/pr-/left-/right-`** whenever horizontal direction is meaningful — otherwise the Arabic layout will break.
 
@@ -42,8 +48,11 @@ donation-app/
 ├── app/
 │   ├── globals.css                       # Tailwind + theme tokens (do not delete)
 │   ├── layout.tsx                        # Pass-through root layout (returns {children})
+│   ├── sitemap.ts                        # Dynamic sitemap: home + active /case/[slug] per locale (§12)
+│   ├── robots.ts                         # Dynamic robots.txt (allows /, blocks admin+auth) (§12)
 │   └── [locale]/                         # ALL routes live under here for i18n
-│       ├── layout.tsx                    # <html lang dir>, NextIntlClientProvider, header, footer
+│       ├── layout.tsx                    # <html lang dir>, full SEO generateMetadata + viewport,
+│       │                                 #   Geist fonts, NextIntlClientProvider, header, footer (§12)
 │       ├── page.tsx                      # Homepage (hero + cases grid)
 │       ├── case/[slug]/page.tsx          # Public case detail page
 │       ├── auth/login/page.tsx           # Admin login (Supabase email/password)
@@ -58,16 +67,17 @@ donation-app/
 │   ├── site-footer.tsx                   # Footer (server component with useTranslations)
 │   ├── language-switcher.tsx             # Client component, uses i18n router.replace()
 │   ├── case-card.tsx                     # Case card on grid (WhatsApp + Learn More buttons)
-│   ├── case-form.tsx                     # Create/edit case form (client, calls Supabase)
+│   ├── case-form.tsx                     # Create/edit case form (client, uploads images to Supabase Storage)
 │   ├── admin-case-list.tsx               # Admin list view of cases
-│   └── theme-provider.tsx                # next-themes wrapper (unused currently)
+│   └── theme-provider.tsx                # next-themes wrapper (installed but NOT mounted in layout)
 ├── i18n/
-│   ├── routing.ts                        # Locales config: ['en', 'ar'], default 'en'
+│   ├── routing.ts                        # Locales config: ['en', 'ar'], default 'ar'
 │   ├── navigation.ts                     # Re-exports Link/redirect/useRouter from next-intl
 │   └── request.ts                        # Loads messages JSON per request
+├── hooks/                                # use-mobile.ts, use-toast.ts (also mirrored under components/ui)
 ├── lib/
-│   ├── types.ts                          # Case type (maps to DB `campaigns` row)
-│   ├── whatsapp.ts                       # buildWhatsAppDonateUrl(prefix, title)
+│   ├── types.ts                          # Case type (maps to DB `campaigns` row); includes whatsapp_number
+│   ├── whatsapp.ts                       # buildWhatsAppDonateUrl(prefix, title, whatsNum) — see §6
 │   ├── utils.ts                          # cn() classname helper (do not delete)
 │   └── supabase/
 │       ├── client.ts                     # Browser Supabase client
@@ -78,13 +88,17 @@ donation-app/
 │   └── ar.json                           # Arabic translations (Modern Standard Arabic)
 ├── scripts/
 │   ├── 001_create_campaigns_table.sql    # Original schema (do not modify)
-│   └── 002_simplify_for_donation_app.sql # Our adjustments + storage bucket
-├── public/                               # Static assets (placeholder images, favicon)
+│   ├── 002_simplify_for_donation_app.sql # Our adjustments + storage bucket
+│   └── 003_rename_payment_link_to_whatsapp_number.sql  # payment_link → whatsapp_number (run in Supabase)
+├── styles/globals.css                    # Duplicate of app/globals.css (legacy; app/ one is active)
+├── public/                               # Static assets: heart.png (favicon), og-image.jpg, site.webmanifest
+│                                         #   (sitemap.xml + robots.txt are now served by app/sitemap.ts + app/robots.ts)
 ├── middleware.ts                         # Combines next-intl routing + Supabase session refresh
 ├── next.config.mjs                       # Wraps next config with next-intl plugin
 ├── components.json                       # shadcn config (don't edit unless adding new primitives)
 ├── tsconfig.json                         # Path alias `@/*` → repo root
 ├── .env.local.example                    # Template env file (commit this, NOT .env.local)
+├── deploy.md                             # Production deployment notes (Vercel + Supabase)
 └── package.json
 ```
 
@@ -124,9 +138,10 @@ public.campaigns (
   goal_amount    decimal(12,2)                  -- nullable (made optional in 002)
   current_amount decimal(12,2) DEFAULT 0
   currency       text DEFAULT 'USD'             -- could be 'EGP' for Egypt
-  image_url      text                           -- public URL to thumbnail
+  image_url      text                           -- public URL to thumbnail (now uploaded via UI)
   organization_name text                        -- nullable (made optional in 002)
-  organization_logo text
+  organization_logo text                         -- present in DB; NOT mapped on the `Case` TS type
+  whatsapp_number text                          -- per-case WhatsApp number, Egyptian, without +2 (see §6)
   status         text DEFAULT 'active'          -- 'active' | 'paused' | 'completed' | 'archived'
   end_date       timestamptz
   created_at     timestamptz DEFAULT now()
@@ -134,6 +149,8 @@ public.campaigns (
   created_by     uuid REFERENCES auth.users(id)
 )
 ```
+
+> **History**: this column was originally added directly in Supabase (outside `scripts/`) as `payment_link`, then renamed to `whatsapp_number` in `scripts/003_rename_payment_link_to_whatsapp_number.sql`. **You must run `003` in the Supabase SQL editor** for the current code to work. If re-provisioning a fresh DB from `scripts/`, the rename in `003` is a no-op on a missing column — instead add it: `alter table public.campaigns add column whatsapp_number text;`. The `Case` type (`lib/types.ts`) has `whatsapp_number: string | null` and the case form requires it.
 
 **Row Level Security policies** (all currently in the SQL files):
 
@@ -145,7 +162,7 @@ public.campaigns (
 | `campaigns_update_own` | UPDATE | authenticated | `created_by = auth.uid()` |
 | `campaigns_delete_own` | DELETE | authenticated | `created_by = auth.uid()` |
 
-The **`case-thumbnails` storage bucket** (created in `002_*.sql`) is public-read, authenticated-write. Currently the case form takes an image **URL** as input — uploading directly to the bucket is not wired up in the UI yet. If you add file upload, use `supabase.storage.from('case-thumbnails').upload(...)`.
+The **`case-thumbnails` storage bucket** (created in `002_*.sql`) is public-read, authenticated-write. **Image upload IS wired up now**: `components/case-form.tsx` has a `<input type="file">` whose `uploadImage()` helper uploads to `case-thumbnails/campaigns/<uuid>.<ext>` and stores the returned public URL in `image_url`. (The translation label `CaseForm.thumbnail` still reads "Thumbnail Image URL" — outdated wording for what is now a file picker.)
 
 ---
 
@@ -155,23 +172,26 @@ There is **no payment processing**. The flow is:
 
 1. Visitor clicks **"Donate via WhatsApp"** on a case card or case detail page.
 2. The button is an anchor (`<a href={whatsappUrl} target="_blank">`) pointing at `https://wa.me/<NUMBER>?text=<MESSAGE>`.
-3. URL is built by `buildWhatsAppDonateUrl(messagePrefix, caseTitle)` in `lib/whatsapp.ts`.
-4. The phone number comes from **`NEXT_PUBLIC_WHATSAPP_NUMBER`** env var — international format, no `+`, digits only (e.g. `201017134627`).
+3. URL is built by `buildWhatsAppDonateUrl(messagePrefix, caseTitle, whatsNum)` in `lib/whatsapp.ts` — **three args**.
+4. **Per-case number, required.** The 3rd arg is `caseItem.whatsapp_number`. If it is empty the function returns `null` and the donate button is hidden entirely — there is no global fallback. Logic in `whatsapp.ts`:
+   - `whatsNum` must be set → number becomes **`+2${whatsNum}`** (hardcoded `+2` Egypt country code, then non-digits stripped).
 5. The message prefix is translated: `messages/en.json#Case.messagePrefix` ("Hello, I would like to donate to:") or the Arabic equivalent.
 6. The case title is appended verbatim and the whole string is `encodeURIComponent`-ed.
 
-Result for a case titled "Help Ahmed with chemo" on English locale:
+Result for a case titled "Help Ahmed with chemo" on English locale (no per-case number, env `201017134627`):
 ```
 https://wa.me/201017134627?text=Hello%2C%20I%20would%20like%20to%20donate%20to%3A%20Help%20Ahmed%20with%20chemo
 ```
 
-**One global number** — there is no per-case phone number. If you ever need per-case numbers, add a `whatsapp_number` column to the table and override `buildWhatsAppDonateUrl` to accept an optional number.
+The per-case value lives in the DB column / TS field **`whatsapp_number`** and the form labels it **"WhatsApp Number"** (placeholder "e.g. 1025533447 … without +2"). The admin enters an Egyptian number **without** the `+2` — the code adds it. ⚠️ The hardcoded `+2` prefix means **non-Egypt numbers are not supported per-case**; if you need other countries, change `whatsapp.ts` to accept/store a full international number instead of prefixing.
+
+**Footer contact numbers are separate and hardcoded.** `components/site-footer.tsx` contains two literal Masjed Alwaldan WhatsApp links (`+201025533447`, `+201222395552`) that are unrelated to the per-case / env donate number.
 
 ---
 
 ## 7. i18n flow (next-intl)
 
-**Routing**: `localePrefix: 'always'` — every URL is prefixed (`/en/...` or `/ar/...`). The root `/` redirects to `/en` via middleware.
+**Routing**: `localePrefix: 'always'` — every URL is prefixed (`/en/...` or `/ar/...`). The **default locale is `ar`** (`i18n/routing.ts`), so the root `/` redirects to `/ar` via middleware. The SEO `x-default` alternate also points at `/ar`.
 
 **Adding a translation key**:
 1. Add it to both `messages/en.json` AND `messages/ar.json` (same path).
@@ -264,18 +284,16 @@ pnpm dlx shadcn@latest add <component-name>
 ```
 Files land in `components/ui/`. Do not hand-edit those — re-run the CLI to update.
 
-### Change the WhatsApp number
+### Change a case's WhatsApp number
 
-Set `NEXT_PUBLIC_WHATSAPP_NUMBER` in `.env.local` (dev) and in your hosting platform's env vars (prod). Restart the dev server / redeploy.
+Edit the case in the admin dashboard and update the **WhatsApp Number** field. There is no global number — each case must have its own. If a case has no number, the donate button is hidden on both the card and the detail page.
 
-### Switch currency from USD to EGP
+### Change the displayed currency
 
-Cases store `currency` per-row (default `'USD'` from the SQL). To change globally:
+Cases store `currency` per-row. The SQL default is `'USD'`, **but the case form overwrites it on every save** with `currency: t('CaseForm.currency')`, which is `"EGP"` in both `messages/en.json` and `messages/ar.json`. So:
 
-```sql
-alter table public.campaigns alter column currency set default 'EGP';
-update public.campaigns set currency = 'EGP' where currency = 'USD';
-```
+- To change the currency new/edited cases get, edit `CaseForm.currency` in **both** message files.
+- To backfill existing rows: `update public.campaigns set currency = 'EGP' where currency = 'USD';`
 
 The UI shows whatever `caseItem.currency` says — no formatting code change needed.
 
@@ -297,14 +315,37 @@ The UI shows whatever `caseItem.currency` says — no formatting code change nee
 
 7. **There's a `lib/supabase/middleware.ts` file** with a legacy `updateSession` helper that the new `middleware.ts` doesn't use. Safe to delete if you're tidying up, but harmless if left.
 
-8. **No image upload UI** — the case form takes a URL. Wire it up to the `case-thumbnails` Supabase Storage bucket if you want native upload (bucket already exists, RLS already set).
+8. **Image upload is wired up** (this was previously a TODO). The case form uploads the chosen file to the `case-thumbnails` bucket and stores the public URL. The `CaseForm.thumbnail` label text still says "URL" though — see §5.
+
+9. **`whatsapp_number` (formerly `payment_link`) must be provisioned in Supabase.** It was added directly in the dashboard and renamed via `scripts/003`. Run that migration or the case form/donate button break — see §5 and §6.
+
+10. **Sitemap & robots are dynamic** (`app/sitemap.ts` / `app/robots.ts`), not static files and not `next-sitemap`. See §12.
 
 ---
 
-## 12. What to read next
+## 12. SEO, metadata & sitemaps
+
+SEO was added after the initial bootstrap and is fairly extensive.
+
+**Per-locale metadata** lives in `app/[locale]/layout.tsx` via `generateMetadata()`:
+- `metadataBase` / canonical / `alternates.languages` come from **`NEXT_PUBLIC_SITE_URL`** (falls back to `https://help-app-ahmed-elsaid.vercel.app`). Set this env var per environment.
+- Title uses a template `"%s | <appName>"`; `appName`/`tagline` come from the `Common` namespace in the message files.
+- OpenGraph + Twitter cards point at `/og-image.jpg` (1200×630, in `public/`).
+- Icons: `/heart.png` is the favicon (and apple-touch icon). The `manifest` points at `/site.webmanifest`. (Previously the metadata referenced `/favicon.ico`, `/apple-icon.png`, and `/manifest.json`, none of which existed — that was fixed.)
+- `viewport` is exported separately (Next 14 requirement) and hardcodes a light color scheme.
+
+**Sitemap & robots are dynamic, native Next.js metadata routes** (no `next-sitemap`, no static files in `public/`):
+1. `app/sitemap.ts` — served at `/sitemap.xml`. Emits the homepage per locale **plus a `/[locale]/case/[slug]` entry for every *active* case**, fetched from Supabase (`from('campaigns').eq('status','active')`). `lastModified` uses each case's `updated_at`. If Supabase is unreachable at build time it degrades to just the static (home) entries. Base URL comes from `NEXT_PUBLIC_SITE_URL`.
+2. `app/robots.ts` — served at `/robots.txt`. Allows `/`, disallows the `admin` and `auth` paths for both locales, and points `Sitemap:` at `${NEXT_PUBLIC_SITE_URL}/sitemap.xml`.
+
+To add more static routes to the sitemap, extend the `staticEntries` array in `app/sitemap.ts` — and only with routes that actually exist.
+
+---
+
+## 13. What to read next
 
 - `deploy.md` — production deployment (Vercel + Supabase)
 - `README.md` — quick-start for human developers
-- `scripts/001_create_campaigns_table.sql` + `scripts/002_simplify_for_donation_app.sql` — source of truth for the data model
+- `scripts/001_create_campaigns_table.sql` + `scripts/002_simplify_for_donation_app.sql` + `scripts/003_rename_payment_link_to_whatsapp_number.sql` — source of truth for the data model
 - `messages/en.json` — the canonical list of all UI strings
 - `i18n/routing.ts` — single source of truth for supported locales
