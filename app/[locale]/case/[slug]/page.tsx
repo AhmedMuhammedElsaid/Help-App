@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Link } from '@/i18n/navigation';
-import { buildWhatsAppDonateUrl } from '@/lib/whatsapp';
+import { buildDonateUrl } from '@/lib/whatsapp';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -49,10 +49,10 @@ export default async function CasePage({ params }: PageProps) {
     ? Math.min(100, (current / goal) * 100)
     : 0;
 
-  const whatsappUrl = buildWhatsAppDonateUrl(
+  const donateUrl = buildDonateUrl(
     t('Case.messagePrefix'),
     caseItem.title,
-    caseItem.payment_link ?? ''
+    caseItem.payment_link ?? '',
   );
 
   const imageUrl = caseItem.image_url?.trim();
@@ -156,16 +156,18 @@ export default async function CasePage({ params }: PageProps) {
               )}
 
               {/* DONATE BUTTON */}
-              <Button
-                asChild
-                className="w-full gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white"
-                size="lg"
-              >
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                  <WhatsAppIcon className="h-5 w-5" />
-                  {t('Case.donateViaWhatsApp')}
-                </a>
-              </Button>
+              {donateUrl && (
+                <Button
+                  asChild
+                  className="w-full gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white"
+                  size="lg"
+                >
+                  <a href={donateUrl} target="_blank" rel="noopener noreferrer">
+                    <WhatsAppIcon className="h-5 w-5" />
+                    {t('Case.donateViaWhatsApp')}
+                  </a>
+                </Button>
+              )}
 
               <p className="text-xs text-center text-muted-foreground">
                 {t('Case.shareCase')}

@@ -20,6 +20,7 @@ export interface Case {
   created_at: string;
   updated_at: string;
   created_by: string | null;
+  /** Stores either an Egyptian WhatsApp number (digits, without +2) or a direct payment URL. */
   payment_link: string | null;
 }
 

@@ -5,7 +5,7 @@ import type { Case } from '@/lib/types';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { buildWhatsAppDonateUrl } from '@/lib/whatsapp';
+import { buildDonateUrl } from '@/lib/whatsapp';
 import { Heart, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
@@ -27,10 +27,10 @@ const goToCase = () => {
   router.push(`/case/${caseItem.slug}`);
 };
 
-  const whatsappUrl = buildWhatsAppDonateUrl(
+  const donateUrl = buildDonateUrl(
     t('Case.messagePrefix'),
     caseItem.title,
-    caseItem.payment_link ?? ''
+    caseItem.payment_link ?? '',
   );
 
   return (
@@ -86,13 +86,15 @@ const goToCase = () => {
       </CardContent>
 
       <CardFooter className="flex gap-2 p-6 pt-0">
-        <Button asChild className="flex-1 gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white">
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-            <WhatsAppIcon className="h-4 w-4" />
-            {t('Case.donateViaWhatsApp')}
-          </a>
-        </Button>
-        <Button asChild variant="outline">
+        {donateUrl && (
+          <Button asChild className="flex-1 gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white">
+            <a href={donateUrl} target="_blank" rel="noopener noreferrer">
+              <WhatsAppIcon className="h-4 w-4" />
+              {t('Case.donateViaWhatsApp')}
+            </a>
+          </Button>
+        )}
+        <Button asChild variant="outline" className={donateUrl ? '' : 'flex-1'}>
           <Link href={`/case/${caseItem.slug}`}>{t('Common.learnMore')}</Link>
         </Button>
       </CardFooter>

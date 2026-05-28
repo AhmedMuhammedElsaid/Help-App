@@ -228,14 +228,15 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="paymentLink">
-              {t('CaseForm.paymentLink')} *
+            <Label htmlFor="whatsappNumber">
+              {t('CaseForm.whatsappNumber')} *
             </Label>
 
-            <Textarea
-              id="paymentLink"
-              rows={6}
-              placeholder={t('CaseForm.paymentLinkPlaceholder')}
+            <Input
+              id="whatsappNumber"
+              type="tel"
+              inputMode="numeric"
+              placeholder={t('CaseForm.whatsappNumberPlaceholder')}
               value={formData.payment_link}
               onChange={(e) =>
                 setFormData({

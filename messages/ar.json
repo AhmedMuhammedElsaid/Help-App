@@ -96,7 +96,7 @@
     "statusCompleted": "مكتملة",
     "createButton": "إضافة الحالة",
     "updateButton": "تحديث الحالة",
-    "paymentLink": "رابط الدفع",
-    "paymentLinkPlaceholder":"رقم المحفظة أو رابط الدفع"
+    "whatsappNumber": "رقم واتساب",
+    "whatsappNumberPlaceholder": "مثال: 1025533447 (أرقام فقط بدون +2)"
   }
 }
