@@ -15,7 +15,6 @@ import { routing } from '@/i18n/routing';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 
-// @ts-expect-error CSS imports are handled by Next.js
 import '../globals.css';
 
 // Base URL without locale – read from env for production
@@ -112,17 +111,12 @@ export async function generateMetadata({
     },
 
     icons: {
-      icon: [
-        { url: '/heart.png', type: 'image/png' },
-        { url: '/favicon.ico', sizes: '32x32' }, // add a .ico for legacy
-      ],
+      icon: [{ url: '/heart.png', type: 'image/png' }],
       shortcut: ['/heart.png'],
-      apple: [
-        { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
-      ],
+      apple: [{ url: '/heart.png' }],
     },
 
-    manifest: '/manifest.json', // create one in /public
+    manifest: '/site.webmanifest',
 
     openGraph: {
       type: 'website',
