@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://help-app-ahmed-elsaid.vercel.app
-
-# Sitemaps
-Sitemap: https://help-app-ahmed-elsaid.vercel.app/sitemap.xml
