@@ -112,10 +112,10 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
       goal_amount: formData.goalAmount
         ? Number(formData.goalAmount)
         : null,
-      currentAmount: formData.goalAmount
-        ? Number(formData.goalAmount)
+      current_amount: formData.currentAmount
+        ? Number(formData.currentAmount)
         : null,
-
+      currency: t('CaseForm.currency'),
       status: formData.status,
     };
 
@@ -185,7 +185,7 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 hidden">
             <Label htmlFor="slug">
               {t('CaseForm.slug')} *
             </Label>
