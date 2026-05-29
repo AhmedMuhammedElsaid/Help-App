@@ -16,6 +16,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 1.0,
+    alternates: {
+      languages: Object.fromEntries(locales.map((l) => [l, `${BASE_URL}/${l}`])),
+    },
   }));
 
   // Dynamic case detail pages — only public (active) cases.
@@ -39,6 +42,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: c.updated_at ? new Date(c.updated_at) : new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
+      alternates: {
+        languages: Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}/case/${c.slug[l]}`]),
+        ),
+      },
     })),
   );
 
