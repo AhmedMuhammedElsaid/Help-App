@@ -1,7 +1,9 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
-import { createClient } from '@/lib/supabase/server';
-import { Link } from '@/i18n/navigation';
+import { Link, redirect } from '@/i18n/navigation';
+import { getCaseBySlug } from '@/lib/cases';
+import { localized } from '@/lib/localized';
 import { buildDonateUrl } from '@/lib/whatsapp';
 import { formatAmount, formatPercent } from '@/lib/format';
 import { caseStatusLabel } from '@/lib/case-status';
@@ -11,12 +13,49 @@ import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  'https://help-app-ahmed-elsaid.vercel.app';
+
 type PageProps = {
   params: {
     locale: string;
     slug: string;
   };
 };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale, slug } = params;
+  const normalizedSlug = decodeURIComponent(slug).trim();
+
+  const result = await getCaseBySlug(normalizedSlug, locale);
+  if (!result) return {};
+
+  const { caseItem } = result;
+  const localeKey = locale as 'en' | 'ar';
+  const title = localized(caseItem.title, locale);
+  const description = localized(caseItem.description, locale).slice(0, 160);
+  const caseUrl = `${BASE_URL}/${locale}/case/${caseItem.slug[localeKey]}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: caseUrl,
+      languages: {
+        en: `${BASE_URL}/en/case/${caseItem.slug.en}`,
+        ar: `${BASE_URL}/ar/case/${caseItem.slug.ar}`,
+        'x-default': `${BASE_URL}/ar/case/${caseItem.slug.ar}`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: caseUrl,
+      ...(caseItem.image_url ? { images: [{ url: caseItem.image_url }] } : {}),
+    },
+  };
+}
 
 export default async function CasePage({ params }: PageProps) {
   const { locale, slug } = params;
@@ -26,21 +65,26 @@ export default async function CasePage({ params }: PageProps) {
 
   const t = await getTranslations();
 
-  const supabase = await createClient();
-
   // Normalize slug (fix Arabic encoding issues)
   const normalizedSlug = decodeURIComponent(slug).trim();
 
-  const { data: caseItem, error } = await supabase
-    .from('campaigns')
-    .select('*')
-    .eq('slug', normalizedSlug)
-    .maybeSingle();
+  const result = await getCaseBySlug(normalizedSlug, locale);
 
   // Safe notFound (prevents hydration crash)
-  if (error || !caseItem) {
+  if (!result) {
     notFound();
   }
+
+  const { caseItem, redirectSlug } = result;
+
+  // The requested slug belongs to the other locale → redirect to the
+  // localized URL so the page and its canonical/hreflang all agree.
+  if (redirectSlug) {
+    redirect({ href: `/case/${redirectSlug}`, locale });
+  }
+
+  const title = localized(caseItem.title, locale);
+  const description = localized(caseItem.description, locale);
 
   const goal = Number(caseItem.goal_amount || 0);
   const current = Number(caseItem.current_amount || 0);
@@ -53,7 +97,7 @@ export default async function CasePage({ params }: PageProps) {
 
   const donateUrl = buildDonateUrl(
     t('Case.messagePrefix'),
-    caseItem.title,
+    title,
     caseItem.payment_link ?? '',
   );
 
@@ -68,7 +112,7 @@ export default async function CasePage({ params }: PageProps) {
           {imageUrl ? (
             <Image
               src={imageUrl}
-              alt={caseItem.title}
+              alt={title}
               fill
               sizes="100vw"
               className="object-cover"
@@ -111,7 +155,7 @@ export default async function CasePage({ params }: PageProps) {
               </div>
 
               <h1 className="text-balance text-3xl font-bold tracking-tight md:text-5xl">
-                {caseItem.title}
+                {title}
               </h1>
             </div>
           </div>
@@ -126,7 +170,7 @@ export default async function CasePage({ params }: PageProps) {
           <div className="lg:col-span-2 space-y-6">
             <article className="prose prose-neutral dark:prose-invert max-w-none">
               <p className="text-lg leading-relaxed text-foreground whitespace-pre-wrap">
-                {caseItem.description}
+                {description}
               </p>
             </article>
           </div>
