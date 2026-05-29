@@ -127,20 +127,20 @@ Do **not** rename the table or the type unless you're prepared to update both si
 
 ## 5. Data model
 
-Single table, defined across two SQL migrations.
+Single table, defined across three SQL migrations (run all three in order in the Supabase SQL Editor).
 
 ```sql
 public.campaigns (
   id             uuid PK
-  title          text NOT NULL                  -- aka "header" in UI
-  slug           text UNIQUE NOT NULL           -- used in /case/[slug] URL
-  description    text
+  title          jsonb NOT NULL                 -- { "en": "...", "ar": "..." } — see §7
+  slug           jsonb NOT NULL                 -- { "en": "...", "ar": "..." } — per-locale unique indexes below
+  description    jsonb NOT NULL                 -- { "en": "...", "ar": "..." }
   goal_amount    decimal(12,2)                  -- nullable (made optional in 002)
   current_amount decimal(12,2) DEFAULT 0
   currency       text DEFAULT 'USD'             -- could be 'EGP' for Egypt
   image_url      text                           -- public URL to thumbnail (now uploaded via UI)
   organization_name text                        -- nullable (made optional in 002)
-  organization_logo text                         -- present in DB; NOT mapped on the `Case` TS type
+  organization_logo text                        -- present in DB; NOT mapped on the `Case` TS type
   whatsapp_number text                          -- per-case WhatsApp number, Egyptian, without +2 (see §6)
   status         text DEFAULT 'active'          -- 'active' | 'paused' | 'completed' | 'archived'
   end_date       timestamptz
@@ -148,9 +148,15 @@ public.campaigns (
   updated_at     timestamptz DEFAULT now()
   created_by     uuid REFERENCES auth.users(id)
 )
+
+-- Unique slugs enforced per locale (independent expression indexes):
+-- campaigns_slug_en_key  ON (slug->>'en')
+-- campaigns_slug_ar_key  ON (slug->>'ar')
 ```
 
-> **History**: this column was originally added directly in Supabase (outside `scripts/`) as `payment_link`, then renamed to `whatsapp_number` in `scripts/003_rename_payment_link_to_whatsapp_number.sql`. **You must run `003` in the Supabase SQL editor** for the current code to work. If re-provisioning a fresh DB from `scripts/`, the rename in `003` is a no-op on a missing column — instead add it: `alter table public.campaigns add column whatsapp_number text;`. The `Case` type (`lib/types.ts`) has `whatsapp_number: string | null` and the case form requires it.
+> **`whatsapp_number` history**: this column was originally added directly in Supabase as `payment_link`, then renamed via `scripts/003_rename_payment_link_to_whatsapp_number.sql`. The `Case` TS type (`lib/types.ts`) still uses `payment_link: string | null` as the field name (legacy). You must add/rename this column in Supabase for the donate button to work — see §6.
+
+> **`LocalizedText` type** (`lib/types.ts`): `title`, `slug`, and `description` are typed as `{ en: string; ar: string }`. Read them through `localized(value, locale)` in `lib/localized.ts` — never index directly in components. The DB stores these as native `jsonb` columns.
 
 **Row Level Security policies** (all currently in the SQL files):
 
@@ -162,7 +168,7 @@ public.campaigns (
 | `campaigns_update_own` | UPDATE | authenticated | `created_by = auth.uid()` |
 | `campaigns_delete_own` | DELETE | authenticated | `created_by = auth.uid()` |
 
-The **`case-thumbnails` storage bucket** (created in `002_*.sql`) is public-read, authenticated-write. **Image upload IS wired up now**: `components/case-form.tsx` has a `<input type="file">` whose `uploadImage()` helper uploads to `case-thumbnails/campaigns/<uuid>.<ext>` and stores the returned public URL in `image_url`. (The translation label `CaseForm.thumbnail` still reads "Thumbnail Image URL" — outdated wording for what is now a file picker.)
+The **`case-thumbnails` storage bucket** (created in `002_*.sql`) is public-read, authenticated-write. **Image upload IS wired up**: `components/case-form.tsx` has a `<input type="file">` whose `uploadImage()` helper uploads to `case-thumbnails/campaigns/<uuid>.<ext>` and stores the returned public URL in `image_url`.
 
 ---
 
@@ -188,6 +194,10 @@ There is **no payment processing**. The flow is:
 ## 7. i18n flow (next-intl)
 
 **Routing**: `localePrefix: 'always'` — every URL is prefixed (`/en/...` or `/ar/...`). The **default locale is `ar`** (`i18n/routing.ts`), so the root `/` redirects to `/ar` via middleware. The SEO `x-default` alternate also points at `/ar`.
+
+**Localized case slugs**: each case stores a separate slug per locale (e.g. `/en/case/ahmed-surgery`, `/ar/case/جراحة-أحمد`). The `slugify()` function in `components/case-form.tsx` uses `\p{L}\p{N}` Unicode classes and preserves Arabic characters natively — Arabic slugs are **not** transliterated to ASCII. The case detail route (`app/[locale]/case/[slug]/page.tsx`) uses `getCaseBySlug()` from `lib/cases.ts` which performs a self-heal: if the slug matches the *other* locale's value it returns a `redirectSlug` and the page issues a `redirect()` to the correct localized URL. This is what makes the language switcher work on case pages without any special handling — it just keeps the path and the redirect corrects the slug.
+
+**Per-case SEO metadata**: `app/[locale]/case/[slug]/page.tsx` exports `generateMetadata` with a localized `canonical` and `hreflang` triplet (`en`/`ar`/`x-default`) pointing at each locale's own slug URL.
 
 **Adding a translation key**:
 1. Add it to both `messages/en.json` AND `messages/ar.json` (same path).
@@ -260,11 +270,11 @@ The `matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']` skips API routes and stati
 
 ### Add a new field to a case (e.g. `category`)
 
-1. **SQL migration**: create `scripts/003_add_category.sql` with `alter table public.campaigns add column category text;`. Run in Supabase SQL Editor.
-2. **Type**: add `category: string | null` to `Case` in `lib/types.ts`.
-3. **Form**: add an Input in `components/case-form.tsx`, include it in the `payload` object.
+1. **SQL migration**: create `scripts/005_add_category.sql` with `alter table public.campaigns add column category text;`. Run in Supabase SQL Editor.
+2. **Type**: add `category: string | null` to `Case` in `lib/types.ts`. If the field needs bilingual content, use `LocalizedText` instead of `string` and store it as `jsonb`.
+3. **Form**: add an Input in `components/case-form.tsx`, include it in the `payload` object. For `LocalizedText` fields, follow the EN/AR `fieldset` pattern already used for title and description.
 4. **Translations**: add `CaseForm.category` keys to both JSON files.
-5. **Display**: show it on `case-card.tsx` and/or `app/[locale]/case/[slug]/page.tsx`.
+5. **Display**: read localized fields via `localized(caseItem.category, locale)` (see `lib/localized.ts`). Show on `case-card.tsx` and/or `app/[locale]/case/[slug]/page.tsx`.
 
 ### Add a new page
 
@@ -327,11 +337,17 @@ SEO was added after the initial bootstrap and is fairly extensive.
 - `metadataBase` / canonical / `alternates.languages` come from **`NEXT_PUBLIC_SITE_URL`** (falls back to `https://help-app-ahmed-elsaid.vercel.app`). Set this env var per environment.
 - Title uses a template `"%s | <appName>"`; `appName`/`tagline` come from the `Common` namespace in the message files.
 - OpenGraph + Twitter cards point at `/og-image.jpg` (1200×630, in `public/`).
-- Icons: `/heart.png` is the favicon (and apple-touch icon). The `manifest` points at `/site.webmanifest`. (Previously the metadata referenced `/favicon.ico`, `/apple-icon.png`, and `/manifest.json`, none of which existed — that was fixed.)
-- `viewport` is exported separately (Next 14 requirement) and hardcodes a light color scheme.
+- Icons: full favicon set in `public/` — `favicon.ico`, `favicon-32x32.png`, `favicon-16x16.png`, `apple-touch-icon.png` (180×180). The `manifest` points at `/site.webmanifest`.
+- `viewport` is exported separately (Next 14 requirement) and supports light/dark color scheme.
+
+**`public/site.webmanifest`**: `name`/`short_name` set to `"Help"`, `description` filled, `start_url: "/"`, `android-chrome-192/512.png` icons, `display: standalone`.
+
+**Structured data (JSON-LD)** is rendered via `components/json-ld.tsx` (a tiny server component using `dangerouslySetInnerHTML`):
+- **Sitewide** (`app/[locale]/layout.tsx`): `@graph` with `Organization`+`NGO` (name, url, logo, description) and `WebSite` (name, url, inLanguage), linked by `@id`.
+- **Per-case** (`app/[locale]/case/[slug]/page.tsx`): `@graph` with `Article` (headline, description, image, dates, publisher) and `BreadcrumbList` (Home → case). OG metadata on case pages uses `type: 'article'`, locale, siteName, explicit image dimensions, and falls back to `/og-image.jpg` when the case has no image. Twitter card mirrors OG.
 
 **Sitemap & robots are dynamic, native Next.js metadata routes** (no `next-sitemap`, no static files in `public/`):
-1. `app/sitemap.ts` — served at `/sitemap.xml`. Emits the homepage per locale **plus a `/[locale]/case/[slug]` entry for every *active* case**, fetched from Supabase (`from('campaigns').eq('status','active')`). `lastModified` uses each case's `updated_at`. If Supabase is unreachable at build time it degrades to just the static (home) entries. Base URL comes from `NEXT_PUBLIC_SITE_URL`.
+1. `app/sitemap.ts` — served at `/sitemap.xml`. Emits the homepage per locale **plus a `/[locale]/case/[slug]` entry for every *active* case**, fetched from Supabase (`from('campaigns').eq('status','active')`). Every entry includes `alternates.languages` with en/ar hreflang pairs (Google's recommended format). `lastModified` uses each case's `updated_at`. If Supabase is unreachable at build time it degrades to just the static (home) entries. Base URL comes from `NEXT_PUBLIC_SITE_URL`.
 2. `app/robots.ts` — served at `/robots.txt`. Allows `/`, disallows the `admin` and `auth` paths for both locales, and points `Sitemap:` at `${NEXT_PUBLIC_SITE_URL}/sitemap.xml`.
 
 To add more static routes to the sitemap, extend the `staticEntries` array in `app/sitemap.ts` — and only with routes that actually exist.
@@ -342,6 +358,9 @@ To add more static routes to the sitemap, extend the `staticEntries` array in `a
 
 - `deploy.md` — production deployment (Vercel + Supabase)
 - `README.md` — quick-start for human developers
-- `scripts/001_create_campaigns_table.sql` + `scripts/002_simplify_for_donation_app.sql` + `scripts/003_rename_payment_link_to_whatsapp_number.sql` — source of truth for the data model
+- `scripts/001_create_campaigns_table.sql` + `scripts/002_simplify_for_donation_app.sql` + `scripts/004_localize_case_content.sql` — source of truth for the data model (run all three in order; `004` converts `title`/`slug`/`description` to `jsonb`)
+- `lib/types.ts` — `Case` type and `LocalizedText`
+- `lib/localized.ts` — `localized(value, locale)` helper; use this whenever reading `title`/`slug`/`description` from a `Case`
+- `lib/cases.ts` — `getCaseBySlug()` with cross-locale self-heal; used by the case detail route
 - `messages/en.json` — the canonical list of all UI strings
 - `i18n/routing.ts` — single source of truth for supported locales
