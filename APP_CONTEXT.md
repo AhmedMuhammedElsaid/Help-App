@@ -170,22 +170,18 @@ The **`case-thumbnails` storage bucket** (created in `002_*.sql`) is public-read
 
 There is **no payment processing**. The flow is:
 
-1. Visitor clicks **"Donate via WhatsApp"** on a case card or case detail page.
-2. The button is an anchor (`<a href={whatsappUrl} target="_blank">`) pointing at `https://wa.me/<NUMBER>?text=<MESSAGE>`.
-3. URL is built by `buildWhatsAppDonateUrl(messagePrefix, caseTitle, whatsNum)` in `lib/whatsapp.ts` — **three args**.
-4. **Per-case number, required.** The 3rd arg is `caseItem.whatsapp_number`. If it is empty the function returns `null` and the donate button is hidden entirely — there is no global fallback. Logic in `whatsapp.ts`:
-   - `whatsNum` must be set → number becomes **`+2${whatsNum}`** (hardcoded `+2` Egypt country code, then non-digits stripped).
-5. The message prefix is translated: `messages/en.json#Case.messagePrefix` ("Hello, I would like to donate to:") or the Arabic equivalent.
-6. The case title is appended verbatim and the whole string is `encodeURIComponent`-ed.
+1. Visitor clicks **"Donate"** on a case card or case detail page.
+2. The button is an anchor (`<a href={donateUrl} target="_blank">`) hidden entirely when `donateUrl` is `null`.
+3. URL is built by `buildDonateUrl(messagePrefix, caseTitle, paymentLink)` in `lib/whatsapp.ts`.
+4. **Per-case only — no global fallback.** The 3rd arg is `caseItem.payment_link`. `buildDonateUrl` returns:
+   - **`null`** if `payment_link` is empty → donate button is hidden.
+   - **The value as-is** if it starts with `http/https` → direct payment link (e.g. InstaPay URL).
+   - **`https://wa.me/2{number}?text=...`** otherwise → treated as an Egyptian phone number, `+2` prefixed, non-digits stripped.
+5. The WhatsApp message prefix comes from `messages/*.json#Case.messagePrefix`; the case title is appended and `encodeURIComponent`-ed.
 
-Result for a case titled "Help Ahmed with chemo" on English locale (no per-case number, env `201017134627`):
-```
-https://wa.me/201017134627?text=Hello%2C%20I%20would%20like%20to%20donate%20to%3A%20Help%20Ahmed%20with%20chemo
-```
+> ⚠️ The hardcoded `+2` prefix means non-Egypt phone numbers are not supported. To support other countries, store the full international number in `payment_link` and remove the prefix logic in `buildDonateUrl`.
 
-The per-case value lives in the DB column / TS field **`whatsapp_number`** and the form labels it **"WhatsApp Number"** (placeholder "e.g. 1025533447 … without +2"). The admin enters an Egyptian number **without** the `+2` — the code adds it. ⚠️ The hardcoded `+2` prefix means **non-Egypt numbers are not supported per-case**; if you need other countries, change `whatsapp.ts` to accept/store a full international number instead of prefixing.
-
-**Footer contact numbers are separate and hardcoded.** `components/site-footer.tsx` contains two literal Masjed Alwaldan WhatsApp links (`+201025533447`, `+201222395552`) that are unrelated to the per-case / env donate number.
+**Footer contact numbers are separate and hardcoded** in `components/site-footer.tsx` (two Masjed Alwaldan numbers) — unrelated to `payment_link`.
 
 ---
 
