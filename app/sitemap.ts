@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
 import { createClient } from '@/lib/supabase/server';
+import type { LocalizedText } from '@/lib/types';
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -18,7 +19,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Dynamic case detail pages — only public (active) cases.
-  let cases: { slug: string; updated_at: string | null }[] = [];
+  // `slug` is now JSONB ({ en, ar }) — see scripts/004.
+  let cases: { slug: LocalizedText; updated_at: string | null }[] = [];
   try {
     const supabase = await createClient();
     const { data } = await supabase
@@ -33,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const caseEntries: MetadataRoute.Sitemap = cases.flatMap((c) =>
     locales.map((locale) => ({
-      url: `${BASE_URL}/${locale}/case/${c.slug}`,
+      url: `${BASE_URL}/${locale}/case/${c.slug[locale]}`,
       lastModified: c.updated_at ? new Date(c.updated_at) : new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
