@@ -47,10 +47,13 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    title: initialCase?.title ?? '',
-    slug: initialCase?.slug ?? '',
+    titleEn: initialCase?.title?.en ?? '',
+    titleAr: initialCase?.title?.ar ?? '',
+    slugEn: initialCase?.slug?.en ?? '',
+    slugAr: initialCase?.slug?.ar ?? '',
+    descriptionEn: initialCase?.description?.en ?? '',
+    descriptionAr: initialCase?.description?.ar ?? '',
     payment_link: initialCase?.payment_link ?? '',
-    description: initialCase?.description ?? '',
     imageUrl: initialCase?.image_url ?? '',
     goalAmount: initialCase?.goal_amount?.toString() ?? '',
     currentAmount: initialCase?.current_amount?.toString() ?? '',
@@ -65,29 +68,20 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
       const supabase = createClient();
 
       const fileExt = file.name.split('.').pop();
-
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
-
       const filePath = `campaigns/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('case-thumbnails')
         .upload(filePath, file);
 
-      if (uploadError) {
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
       const {
         data: { publicUrl },
-      } = supabase.storage
-        .from('case-thumbnails')
-        .getPublicUrl(filePath);
+      } = supabase.storage.from('case-thumbnails').getPublicUrl(filePath);
 
-      setFormData((prev) => ({
-        ...prev,
-        imageUrl: publicUrl,
-      }));
+      setFormData((prev) => ({ ...prev, imageUrl: publicUrl }));
     } catch (err) {
       setError(err instanceof Error ? err.message : t('Common.uploadFailed'));
     } finally {
@@ -97,24 +91,31 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    // Require both languages before saving
+    if (
+      !formData.titleEn.trim() ||
+      !formData.titleAr.trim() ||
+      !formData.descriptionEn.trim() ||
+      !formData.descriptionAr.trim()
+    ) {
+      setError(t('CaseForm.bothLanguagesRequired'));
+      return;
+    }
 
     setIsLoading(true);
-    setError(null);
 
     const supabase = createClient();
 
     const payload = {
-      title: formData.title,
-      slug: formData.slug,
+      title: { en: formData.titleEn.trim(), ar: formData.titleAr.trim() },
+      slug: { en: formData.slugEn, ar: formData.slugAr },
+      description: { en: formData.descriptionEn.trim(), ar: formData.descriptionAr.trim() },
       payment_link: formData.payment_link,
-      description: formData.description || null,
       image_url: formData.imageUrl || null,
-      goal_amount: formData.goalAmount
-        ? Number(formData.goalAmount)
-        : null,
-      current_amount: formData.currentAmount
-        ? Number(formData.currentAmount)
-        : null,
+      goal_amount: formData.goalAmount ? Number(formData.goalAmount) : null,
+      current_amount: formData.currentAmount ? Number(formData.currentAmount) : null,
       currency: t('CaseForm.currency'),
       status: formData.status,
     };
@@ -126,20 +127,13 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
           .update(payload)
           .eq('id', initialCase.id);
 
-        if (updateError) {
-          throw updateError;
-        }
+        if (updateError) throw updateError;
       } else {
         const { error: insertError } = await supabase
           .from('campaigns')
-          .insert({
-            ...payload,
-            created_by: userId,
-          });
+          .insert({ ...payload, created_by: userId });
 
-        if (insertError) {
-          throw insertError;
-        }
+        if (insertError) throw insertError;
       }
 
       router.push('/admin');
@@ -155,83 +149,98 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
     <Card>
       <CardHeader>
         <CardTitle>
-          {isEdit
-            ? t('CaseForm.editTitle')
-            : t('CaseForm.newTitle')}
+          {isEdit ? t('CaseForm.editTitle') : t('CaseForm.newTitle')}
         </CardTitle>
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* English content section */}
+          <fieldset className="space-y-4 rounded-lg border p-4">
+            <legend className="px-1 text-sm font-semibold text-muted-foreground">
+              {t('CaseForm.contentEn')}
+            </legend>
+
+            <div className="space-y-2">
+              <Label htmlFor="titleEn">{t('CaseForm.headerEn')} *</Label>
+              <Input
+                id="titleEn"
+                dir="ltr"
+                placeholder={t('CaseForm.headerEnPlaceholder')}
+                value={formData.titleEn}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    titleEn: e.target.value,
+                    slugEn: isEdit ? prev.slugEn : slugify(e.target.value),
+                  }))
+                }
+              />
+            </div>
+
+            {/* Hidden EN slug */}
+            <input type="hidden" value={formData.slugEn} />
+
+            <div className="space-y-2">
+              <Label htmlFor="descriptionEn">{t('CaseForm.descriptionEn')} *</Label>
+              <Textarea
+                id="descriptionEn"
+                dir="ltr"
+                rows={5}
+                placeholder={t('CaseForm.descriptionEnPlaceholder')}
+                value={formData.descriptionEn}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, descriptionEn: e.target.value }))
+                }
+              />
+            </div>
+          </fieldset>
+
+          {/* Arabic content section */}
+          <fieldset className="space-y-4 rounded-lg border p-4">
+            <legend className="px-1 text-sm font-semibold text-muted-foreground">
+              {t('CaseForm.contentAr')}
+            </legend>
+
+            <div className="space-y-2">
+              <Label htmlFor="titleAr">{t('CaseForm.headerAr')} *</Label>
+              <Input
+                id="titleAr"
+                dir="rtl"
+                placeholder={t('CaseForm.headerArPlaceholder')}
+                value={formData.titleAr}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    titleAr: e.target.value,
+                    slugAr: isEdit ? prev.slugAr : slugify(e.target.value),
+                  }))
+                }
+              />
+            </div>
+
+            {/* Hidden AR slug */}
+            <input type="hidden" value={formData.slugAr} />
+
+            <div className="space-y-2">
+              <Label htmlFor="descriptionAr">{t('CaseForm.descriptionAr')} *</Label>
+              <Textarea
+                id="descriptionAr"
+                dir="rtl"
+                rows={5}
+                placeholder={t('CaseForm.descriptionArPlaceholder')}
+                value={formData.descriptionAr}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, descriptionAr: e.target.value }))
+                }
+              />
+            </div>
+          </fieldset>
+
+          {/* WhatsApp number */}
           <div className="space-y-2">
-            <Label htmlFor="title">
-              {t('CaseForm.header')} *
-            </Label>
-
-            <Input
-              id="title"
-              placeholder={t('CaseForm.headerPlaceholder')}
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  title: e.target.value,
-                  slug: isEdit
-                    ? formData.slug
-                    : slugify(e.target.value),
-                })
-              }
-              required
-            />
-          </div>
-
-          <div className="space-y-2 hidden">
-            <Label htmlFor="slug">
-              {t('CaseForm.slug')} *
-            </Label>
-
-            <Input
-              id="slug"
-              value={formData.slug}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  slug: e.target.value,
-                })
-              }
-              required
-              readOnly
-            />
-
-            <p className="text-xs text-muted-foreground">
-              {t('CaseForm.slugHint')}
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">
-              {t('CaseForm.description')} *
-            </Label>
-
-            <Textarea
-              id="description"
-              rows={6}
-              placeholder={t('CaseForm.descriptionPlaceholder')}
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  description: e.target.value,
-                })
-              }
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="whatsappNumber">
-              {t('CaseForm.whatsappNumber')} *
-            </Label>
-
+            <Label htmlFor="whatsappNumber">{t('CaseForm.whatsappNumber')} *</Label>
             <Input
               id="whatsappNumber"
               type="tel"
@@ -239,40 +248,29 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
               placeholder={t('CaseForm.whatsappNumberPlaceholder')}
               value={formData.payment_link}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  payment_link: e.target.value,
-                })
+                setFormData((prev) => ({ ...prev, payment_link: e.target.value }))
               }
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="imageUrl">
-              {t('CaseForm.thumbnail')}
-            </Label>
 
+          {/* Thumbnail */}
+          <div className="space-y-2">
+            <Label htmlFor="imageUrl">{t('CaseForm.thumbnail')}</Label>
             <Input
               id="imageUrl"
               type="file"
               accept="image/*"
               onChange={async (e) => {
                 const file = e.target.files?.[0];
-
                 if (!file) return;
-
                 await uploadImage(file);
               }}
             />
-
-            <p className="text-xs text-muted-foreground">
-              {t('CaseForm.thumbnailHint')}
-            </p>
+            <p className="text-xs text-muted-foreground">{t('CaseForm.thumbnailHint')}</p>
 
             {uploadingImage && (
-              <p className="text-sm text-muted-foreground">
-                {t('Common.uploadingImage')}
-              </p>
+              <p className="text-sm text-muted-foreground">{t('Common.uploadingImage')}</p>
             )}
 
             {formData.imageUrl && (
@@ -284,11 +282,10 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
             )}
           </div>
 
+          {/* Amounts + status */}
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="goalAmount">
-                {t('CaseForm.goalAmount')}
-              </Label>
+              <Label htmlFor="goalAmount">{t('CaseForm.goalAmount')}</Label>
               <Input
                 id="goalAmount"
                 type="number"
@@ -297,17 +294,13 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
                 placeholder={t('CaseForm.goalPlaceholder')}
                 value={formData.goalAmount}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    goalAmount: e.target.value,
-                  })
+                  setFormData((prev) => ({ ...prev, goalAmount: e.target.value }))
                 }
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="currentAmount">
-                {t('CaseForm.currentAmount')}
-              </Label>
+              <Label htmlFor="currentAmount">{t('CaseForm.currentAmount')}</Label>
               <Input
                 id="currentAmount"
                 type="number"
@@ -316,57 +309,33 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
                 placeholder={t('CaseForm.currentAmountPlaceholder')}
                 value={formData.currentAmount}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    currentAmount: e.target.value,
-                  })
+                  setFormData((prev) => ({ ...prev, currentAmount: e.target.value }))
                 }
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">
-                {t('CaseForm.status')}
-              </Label>
 
+            <div className="space-y-2">
+              <Label htmlFor="status">{t('CaseForm.status')}</Label>
               <Select
                 value={formData.status}
                 onValueChange={(v) =>
-                  setFormData({
-                    ...formData,
-                    status: v as CaseStatus,
-                  })
+                  setFormData((prev) => ({ ...prev, status: v as CaseStatus }))
                 }
               >
                 <SelectTrigger id="status">
                   <SelectValue />
                 </SelectTrigger>
-
                 <SelectContent>
-                  <SelectItem value="active">
-                    {t('CaseForm.statusActive')}
-                  </SelectItem>
-
-                  <SelectItem value="paused">
-                    {t('CaseForm.statusPaused')}
-                  </SelectItem>
-
-                  <SelectItem value="completed">
-                    {t('CaseForm.statusCompleted')}
-                  </SelectItem>
-
-                  <SelectItem value="archived">
-                    {t('CaseForm.statusArchived')}
-                  </SelectItem>
+                  <SelectItem value="active">{t('CaseForm.statusActive')}</SelectItem>
+                  <SelectItem value="paused">{t('CaseForm.statusPaused')}</SelectItem>
+                  <SelectItem value="completed">{t('CaseForm.statusCompleted')}</SelectItem>
+                  <SelectItem value="archived">{t('CaseForm.statusArchived')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {error && (
-            <p className="text-sm text-destructive">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-3">
             <Button
