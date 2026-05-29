@@ -16,6 +16,7 @@ import { routing } from '@/i18n/routing';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 import { ThemeProvider } from '@/components/theme-provider';
+import { JsonLd } from '@/components/json-ld';
 
 import '../globals.css';
 
@@ -108,9 +109,13 @@ export async function generateMetadata({
     },
 
     icons: {
-      icon: [{ url: '/heart.png', type: 'image/png' }],
-      shortcut: ['/heart.png'],
-      apple: [{ url: '/heart.png' }],
+      icon: [
+        { url: '/favicon.ico', sizes: 'any' },
+        { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+        { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      ],
+      apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+      shortcut: ['/favicon.ico'],
     },
 
     manifest: '/site.webmanifest',
@@ -169,6 +174,30 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
   const messages = await getMessages();
+  const t = await getTranslations({ locale, namespace: 'Common' });
+
+  const siteUrl = `${BASE_URL}/${locale}`;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': ['Organization', 'NGO'],
+        '@id': `${BASE_URL}/#organization`,
+        name: t('appName'),
+        url: BASE_URL,
+        logo: `${BASE_URL}/og-image.jpg`,
+        description: t('metaDescription'),
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${BASE_URL}/#website`,
+        name: t('appName'),
+        url: siteUrl,
+        inLanguage: locale,
+        publisher: { '@id': `${BASE_URL}/#organization` },
+      },
+    ],
+  };
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
@@ -179,6 +208,7 @@ export default async function LocaleLayout({
       <body
         className={`min-h-screen flex flex-col font-sans antialiased ${GeistSans.variable} ${GeistMono.variable} ${ibmPlexArabic.variable}`}
       >
+        <JsonLd data={jsonLd} />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider
             attribute="class"

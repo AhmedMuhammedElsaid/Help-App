@@ -10,6 +10,7 @@ import { caseStatusLabel } from '@/lib/case-status';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { JsonLd } from '@/components/json-ld';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 
@@ -49,10 +50,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
     },
     openGraph: {
+      type: 'article',
+      locale: locale === 'ar' ? 'ar_EG' : 'en_US',
+      siteName: 'Help',
       title,
       description,
       url: caseUrl,
-      ...(caseItem.image_url ? { images: [{ url: caseItem.image_url }] } : {}),
+      images: [
+        caseItem.image_url
+          ? { url: caseItem.image_url, width: 1200, height: 630, alt: title }
+          : { url: '/og-image.jpg', width: 1200, height: 630, alt: title },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [caseItem.image_url ?? '/og-image.jpg'],
     },
   };
 }
@@ -103,8 +117,45 @@ export default async function CasePage({ params }: PageProps) {
 
   const imageUrl = caseItem.image_url?.trim();
 
+  const localeKey = locale as 'en' | 'ar';
+  const caseUrl = `${BASE_URL}/${locale}/case/${caseItem.slug[localeKey]}`;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        headline: title,
+        description: description.slice(0, 160),
+        inLanguage: locale,
+        datePublished: caseItem.created_at,
+        dateModified: caseItem.updated_at,
+        mainEntityOfPage: caseUrl,
+        ...(imageUrl ? { image: imageUrl } : {}),
+        publisher: { '@id': `${BASE_URL}/#organization` },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: t('Common.home'),
+            item: `${BASE_URL}/${locale}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: title,
+            item: caseUrl,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <JsonLd data={jsonLd} />
       {/* HERO */}
       <div className="relative border-b">
         <div className="relative h-[320px] md:h-[420px] overflow-hidden bg-muted">
