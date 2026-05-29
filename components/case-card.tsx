@@ -1,7 +1,8 @@
 "use client";
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import type { Case } from '@/lib/types';
+import { localized } from '@/lib/localized';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -16,18 +17,23 @@ interface CaseCardProps {
 
 export function CaseCard({ caseItem }: CaseCardProps) {
   const t = useTranslations();
+  const locale = useLocale();
   const router = useRouter();
+
+  const title = localized(caseItem.title, locale);
+  const description = localized(caseItem.description, locale);
+  const slug = caseItem.slug[locale as 'en' | 'ar'];
 
   const hasGoal = caseItem.goal_amount && caseItem.goal_amount > 0;
   const percentage = hasGoal
     ? Math.min(100, (Number(caseItem.current_amount) / Number(caseItem.goal_amount)) * 100)
     : 0;
 
-  const goToCase = () => router.push(`/case/${caseItem.slug}`);
+  const goToCase = () => router.push(`/case/${slug}`);
 
   const donateUrl = buildDonateUrl(
     t('Case.messagePrefix'),
-    caseItem.title,
+    title,
     caseItem.payment_link ?? '',
   );
 
@@ -40,7 +46,7 @@ export function CaseCard({ caseItem }: CaseCardProps) {
         {caseItem.image_url ? (
           <Image
             src={caseItem.image_url}
-            alt={caseItem.title}
+            alt={title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -58,11 +64,11 @@ export function CaseCard({ caseItem }: CaseCardProps) {
 
       <CardContent className="flex flex-1 flex-col px-5 pt-5">
         <h3 className="mb-2 line-clamp-2 text-balance text-lg font-bold leading-snug transition-colors group-hover:text-primary">
-          {caseItem.title}
+          {title}
         </h3>
 
         <p className="mb-4 line-clamp-2 flex-1 text-sm leading-relaxed text-muted-foreground">
-          {caseItem.description}
+          {description}
         </p>
 
         {hasGoal && (
@@ -101,7 +107,7 @@ export function CaseCard({ caseItem }: CaseCardProps) {
           </Button>
         )}
         <Button asChild variant="outline" className={donateUrl ? '' : 'flex-1'}>
-          <Link href={`/case/${caseItem.slug}`}>{t('Common.learnMore')}</Link>
+          <Link href={`/case/${slug}`}>{t('Common.learnMore')}</Link>
         </Button>
       </CardFooter>
     </Card>

@@ -1,8 +1,9 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { Case } from '@/lib/types';
+import { localized } from '@/lib/localized';
 import { formatAmount } from '@/lib/format';
 import { caseStatusLabel } from '@/lib/case-status';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +17,7 @@ interface AdminCaseListProps {
 
 export function AdminCaseList({ cases }: AdminCaseListProps) {
   const t = useTranslations();
+  const locale = useLocale();
 
   if (cases.length === 0) {
     return (
@@ -43,7 +45,7 @@ export function AdminCaseList({ cases }: AdminCaseListProps) {
           >
             <div className="flex-1 min-w-0">
               <div className="mb-2 flex flex-wrap items-center gap-2">
-                <h3 className="font-semibold text-foreground truncate">{c.title}</h3>
+                <h3 className="font-semibold text-foreground truncate">{localized(c.title, locale)}</h3>
                 <Badge variant="secondary">
                   {caseStatusLabel(t, c.status)}
                 </Badge>
