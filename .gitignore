@@ -3,6 +3,9 @@
 # dependencies
 /node_modules
 
+# brainstorming visual companion
+.superpowers/
+
 # next.js
 /.next/
 /out/

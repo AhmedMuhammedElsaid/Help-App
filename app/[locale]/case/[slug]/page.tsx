@@ -3,6 +3,8 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Link } from '@/i18n/navigation';
 import { buildDonateUrl } from '@/lib/whatsapp';
+import { formatAmount, formatPercent } from '@/lib/format';
+import { caseStatusLabel } from '@/lib/case-status';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -103,8 +105,8 @@ export default async function CasePage({ params }: PageProps) {
                   {t('Common.verified')}
                 </Badge>
 
-                <Badge variant="outline" className="capitalize">
-                  {caseItem.status}
+                <Badge variant="outline">
+                  {caseStatusLabel(t, caseItem.status)}
                 </Badge>
               </div>
 
@@ -136,21 +138,21 @@ export default async function CasePage({ params }: PageProps) {
               {hasGoal && (
                 <div className="space-y-2">
                   <div className="flex items-baseline justify-between text-sm">
-                    <span className="text-2xl font-bold">
-                      {current.toLocaleString()} {t("CaseForm.currency")}
+                    <span className="text-2xl font-bold tracking-tight">
+                      {formatAmount(current)} {caseItem.currency}
                     </span>
                   </div>
 
                   <p className="text-sm text-muted-foreground">
                     {t('Case.goal', {
-                      goal: `${goal.toLocaleString()} ${t("CaseForm.currency")}`,
+                      goal: `${formatAmount(goal)} ${caseItem.currency}`,
                     })}
                   </p>
 
                   <Progress value={percentage} className="h-2.5" />
 
                   <p className="text-xs text-muted-foreground">
-                    {t('Case.funded', { percent: percentage.toFixed(0) })}
+                    {t('Case.funded', { percent: formatPercent(percentage) })}
                   </p>
                 </div>
               )}

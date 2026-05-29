@@ -23,58 +23,81 @@ export default async function HomePage({
     .eq('status', 'active')
     .order('created_at', { ascending: false });
 
+  const trust = [
+    { value: t('Home.trustReachesValue'), label: t('Home.trustReachesLabel') },
+    { value: t('Home.trustVerifiedValue'), label: t('Home.trustVerifiedLabel') },
+    { value: t('Home.trustDirectValue'), label: t('Home.trustDirectLabel') },
+  ];
+
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden border-b bg-gradient-to-br from-primary/10 via-background to-accent/10">
-        <div className="container mx-auto px-4 py-20 md:py-28">
-          <div className="mx-auto max-w-3xl text-center space-y-6">
-            {/* <div className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-1.5 text-sm shadow-sm">
-              <Heart className="h-4 w-4 text-primary" fill="currentColor" />
-              <span className="text-muted-foreground">{t('Common.tagline')}</span>
-            </div> */}
-            <h1 className="text-balance text-4xl font-bold tracking-tight md:text-6xl">
+      <section className="relative overflow-hidden border-b">
+        {/* subtle backdrop wash */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/[0.04] to-transparent" />
+        <div className="container relative mx-auto px-4 py-24 md:py-32">
+          <div className="mx-auto max-w-3xl text-center">
+            {/* thin editorial rule */}
+            <div className="mx-auto mb-7 h-[3px] w-10 rounded-full bg-primary" />
+            <h1 className="text-balance text-4xl font-extrabold tracking-tight md:text-6xl">
               {t('Home.heroTitle')}
             </h1>
-            <p className="text-pretty text-lg text-muted-foreground md:text-xl leading-relaxed">
+            <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground md:text-xl">
               {t('Home.heroSubtitle')}
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-              <Button size="lg" asChild className="gap-2 h-12 px-8">
+            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+              <Button size="lg" asChild className="h-12 gap-2 rounded-xl px-8 text-base">
                 <Link href="/#cases">
                   <ArrowDown className="h-5 w-5" />
                   {t('Home.browseCases')}
                 </Link>
               </Button>
             </div>
+
+            {/* trust strip */}
+            <div className="mx-auto mt-14 flex max-w-lg flex-wrap items-center justify-center gap-x-10 gap-y-6">
+              {trust.map((item, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center px-2 text-center"
+                >
+                  <span className="text-xl font-bold tracking-tight md:text-2xl">
+                    {item.value}
+                  </span>
+                  <span className="mt-1 text-xs text-muted-foreground md:text-sm">
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Cases grid */}
-      <section id="cases" className="py-16 md:py-20">
+      <section id="cases" className="scroll-mt-16 bg-muted/30 py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <div className="mb-10 text-center">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
             <h2 className="text-balance text-3xl font-bold tracking-tight md:text-4xl">
               {t('Home.casesHeading')}
             </h2>
-            <p className="mt-3 text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="mt-3 text-pretty text-lg text-muted-foreground">
               {t('Home.casesSubheading')}
             </p>
           </div>
 
           {cases && cases.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {(cases as Case[]).map((c) => (
                 <CaseCard key={c.id} caseItem={c} />
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed p-12 text-center bg-muted/30">
+            <div className="mx-auto max-w-md rounded-2xl border border-dashed bg-background p-12 text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
                 <Heart className="h-8 w-8 text-muted-foreground" />
               </div>
-              <p className="text-muted-foreground text-lg">{t('Home.noCases')}</p>
+              <p className="text-lg text-muted-foreground">{t('Home.noCases')}</p>
             </div>
           )}
         </div>

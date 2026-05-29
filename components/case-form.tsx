@@ -89,7 +89,7 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
         imageUrl: publicUrl,
       }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Image upload failed');
+      setError(err instanceof Error ? err.message : t('Common.uploadFailed'));
     } finally {
       setUploadingImage(false);
     }
@@ -145,7 +145,7 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
       router.push('/admin');
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : t('Common.unknownError'));
     } finally {
       setIsLoading(false);
     }
@@ -271,14 +271,14 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
 
             {uploadingImage && (
               <p className="text-sm text-muted-foreground">
-                Uploading image...
+                {t('Common.uploadingImage')}
               </p>
             )}
 
             {formData.imageUrl && (
               <img
                 src={formData.imageUrl}
-                alt="Preview"
+                alt={t('Common.imagePreviewAlt')}
                 className="h-40 w-full rounded-md border object-cover"
               />
             )}
@@ -352,6 +352,10 @@ export function CaseForm({ userId, initialCase }: CaseFormProps) {
 
                   <SelectItem value="completed">
                     {t('CaseForm.statusCompleted')}
+                  </SelectItem>
+
+                  <SelectItem value="archived">
+                    {t('CaseForm.statusArchived')}
                   </SelectItem>
                 </SelectContent>
               </Select>

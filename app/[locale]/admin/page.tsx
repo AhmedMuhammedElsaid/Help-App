@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { redirect } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/server';
 import type { Case } from '@/lib/types';
+import { formatAmount } from '@/lib/format';
 import { AdminCaseList } from '@/components/admin-case-list';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
@@ -94,7 +95,7 @@ export default async function AdminDashboard({
               <Heart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalRaised.toLocaleString()}</div>
+              <div className="text-2xl font-bold tracking-tight">{formatAmount(totalRaised)}</div>
             </CardContent>
           </Card>
         </div>

@@ -1,7 +1,9 @@
 {
   "Common": {
     "appName": "ساعد",
-    "tagline": "ساعد",
+    "tagline": "عطاء مباشر وشفّاف — يصل إلى من يحتاجه فعلاً.",
+    "metaDescription": "تصفّح الحالات الخيرية الموثّقة وتبرّع مباشرة لمن يحتاجه عبر واتساب. عطاء مباشر وشفّاف بلا وسطاء.",
+    "keywords": "تبرعات,صدقة,زكاة,جمع تبرعات,تبرع أونلاين,مساعدة المحتاجين,علاج,كفالة,واتساب,مصر",
     "donateNow": "تبرع الآن",
     "learnMore": "اعرف التفاصيل",
     "back": "رجوع",
@@ -11,7 +13,11 @@
     "edit": "تعديل",
     "loading": "جاري التحميل...",
     "saving": "جاري الحفظ...",
-    "verified": "موثق"
+    "verified": "موثّقة",
+    "uploadingImage": "جاري رفع الصورة...",
+    "imagePreviewAlt": "معاينة",
+    "uploadFailed": "فشل رفع الصورة. حاول مرة أخرى.",
+    "unknownError": "حدث خطأ ما. حاول مرة أخرى."
   },
   "Header": {
     "home": "الرئيسية",
@@ -20,7 +26,9 @@
     "signIn": "تسجيل الدخول",
     "language": "اللغة",
     "languageEn": "English",
-    "languageAr": "العربية"
+    "languageAr": "العربية",
+    "menu": "القائمة",
+    "toggleTheme": "تبديل المظهر"
   },
   "Footer": {
     "tagline": "نمكّن المجتمعات من خلال العطاء المباشر والشفاف.",
@@ -33,7 +41,7 @@
     "linkedIn": "لينكدإن",
     "github": "جيتهاب",
     "portfolio": "بورتفوليو",
-    "whatsAlwaldan":"واتساب مسجد الوالدين"
+    "whatsAlwaldan": "واتساب مسجد الوالدين"
   },
   "Home": {
     "heroTitle": "كن سببًا في تغيير حياة",
@@ -41,7 +49,13 @@
     "browseCases": "تصفح الحالات",
     "casesHeading": "حالات بحاجة لمساعدتك",
     "casesSubheading": "أشخاص حقيقيون، قصص حقيقية، أثر حقيقي. اختر حالة وتواصل مباشرة عبر واتساب.",
-    "noCases": "لا توجد حالات نشطة حاليًا. يرجى المتابعة لاحقًا."
+    "noCases": "لا توجد حالات نشطة حاليًا. يرجى المتابعة لاحقًا.",
+    "trustReachesValue": "100%",
+    "trustReachesLabel": "يصل للمستحق",
+    "trustVerifiedValue": "موثّق",
+    "trustVerifiedLabel": "كل حالة مُراجعة",
+    "trustDirectValue": "مباشر",
+    "trustDirectLabel": "عبر واتساب"
   },
   "Case": {
     "raised": "تم جمعه",
@@ -82,21 +96,22 @@
     "slug": "رابط الحالة (Slug)",
     "slugHint": "يُولَّد تلقائيًا من العنوان — يُستخدم في رابط الحالة",
     "description": "الوصف",
+    "whatsappNumber": "رقم واتساب",
+    "whatsappNumberPlaceholder": "مثال: 1025533447 (أرقام فقط بدون +2)",
     "descriptionPlaceholder": "اشرح تفاصيل الحالة، سبب الحاجة للمساعدة، وكيف سيُستخدم التبرع...",
-    "thumbnail": "رابط صورة الحالة",
-    "thumbnailHint": "ضع رابط صورة متاحة على الإنترنت",
-    "goalAmount": "المبلغ المستهدف",
+    "thumbnail": "صورة الحالة",
+    "thumbnailHint": "ارفع صورة واضحة تمثّل الحالة",
+    "goalAmount": "المبلغ المستهدف (اختياري)",
     "goalPlaceholder": "5000",
-    "currentAmount":  "المبلغ الحالي (اختياري)",
+    "currentAmount": "المبلغ الحالي (اختياري)",
     "currentAmountPlaceholder": "0",
-    "status": "الحالة",
     "currency": "جنيه",
+    "status": "الحالة",
     "statusActive": "نشطة",
     "statusPaused": "متوقفة",
     "statusCompleted": "مكتملة",
+    "statusArchived": "مؤرشفة",
     "createButton": "إضافة الحالة",
-    "updateButton": "تحديث الحالة",
-    "whatsappNumber": "رقم واتساب",
-    "whatsappNumberPlaceholder": "مثال: 1025533447 (أرقام فقط بدون +2)"
+    "updateButton": "تحديث الحالة"
   }
 }

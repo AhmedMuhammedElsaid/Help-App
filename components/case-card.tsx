@@ -1,31 +1,29 @@
 "use client";
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import type { Case } from '@/lib/types';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { buildDonateUrl } from '@/lib/whatsapp';
+import { formatAmount, formatPercent } from '@/lib/format';
 import { Heart, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from '@/i18n/navigation';
+
 interface CaseCardProps {
   caseItem: Case;
 }
 
 export function CaseCard({ caseItem }: CaseCardProps) {
   const t = useTranslations();
+  const router = useRouter();
 
   const hasGoal = caseItem.goal_amount && caseItem.goal_amount > 0;
   const percentage = hasGoal
     ? Math.min(100, (Number(caseItem.current_amount) / Number(caseItem.goal_amount)) * 100)
     : 0;
 
-    const router = useRouter();
-
-const goToCase = () => {
-  router.push(`/case/${caseItem.slug}`);
-};
+  const goToCase = () => router.push(`/case/${caseItem.slug}`);
 
   const donateUrl = buildDonateUrl(
     t('Case.messagePrefix'),
@@ -34,60 +32,68 @@ const goToCase = () => {
   );
 
   return (
-    <Card   onClick={goToCase}
- className="group flex flex-col overflow-hidden transition-all hover:shadow-xl hover:border-primary/50">
+    <Card
+      onClick={goToCase}
+      className="group relative flex cursor-pointer flex-col gap-0 overflow-hidden rounded-xl border bg-card py-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+    >
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         {caseItem.image_url ? (
           <Image
             src={caseItem.image_url}
             alt={caseItem.title}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-muted">
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-muted">
             <Heart className="h-12 w-12 text-muted-foreground/40" />
           </div>
         )}
-        <div className="absolute top-3 end-3 inline-flex items-center gap-1 rounded-full bg-primary/90 px-3 py-1 text-xs font-medium text-primary-foreground backdrop-blur">
-          <ShieldCheck className="h-3 w-3" />
+        <div className="absolute top-3 start-3 inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/85 px-2.5 py-1 text-xs font-medium backdrop-blur">
+          <ShieldCheck className="h-3 w-3 text-primary" />
           {t('Common.verified')}
         </div>
       </div>
 
-      <CardContent className="flex flex-1 flex-col p-6">
-        <h3 className="mb-3 line-clamp-2 text-balance text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+      <CardContent className="flex flex-1 flex-col px-5 pt-5">
+        <h3 className="mb-2 line-clamp-2 text-balance text-lg font-bold leading-snug transition-colors group-hover:text-primary">
           {caseItem.title}
         </h3>
 
-        <p className="mb-4 line-clamp-3 text-sm text-muted-foreground leading-relaxed flex-1">
+        <p className="mb-4 line-clamp-2 flex-1 text-sm leading-relaxed text-muted-foreground">
           {caseItem.description}
         </p>
 
         {hasGoal && (
-          <div className="space-y-2 mt-auto">
+          <div className="mt-auto space-y-2">
             <div className="flex items-baseline justify-between text-sm">
               <span className="font-semibold text-foreground">
-                {Number(caseItem.current_amount).toLocaleString()} {caseItem.currency}
+                {formatAmount(Number(caseItem.current_amount))} {caseItem.currency}
               </span>
-              <span className="text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {t('Case.goal', {
-                  goal: `${Number(caseItem.goal_amount).toLocaleString()} ${caseItem.currency}`,
+                  goal: `${formatAmount(Number(caseItem.goal_amount))} ${caseItem.currency}`,
                 })}
               </span>
             </div>
-            <Progress value={percentage} className="h-2" />
+            <Progress value={percentage} className="h-1.5" />
             <p className="text-xs text-muted-foreground">
-              {t('Case.funded', { percent: percentage.toFixed(0) })}
+              {t('Case.funded', { percent: formatPercent(percentage) })}
             </p>
           </div>
         )}
       </CardContent>
 
-      <CardFooter className="flex gap-2 p-6 pt-0">
+      <CardFooter
+        className="flex gap-2 px-5 pb-5 pt-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         {donateUrl && (
-          <Button asChild className="flex-1 gap-2 bg-[#25D366] hover:bg-[#1ebe5a] text-white">
+          <Button
+            asChild
+            className="flex-1 gap-2 bg-[#25D366] text-white hover:bg-[#1ebe5a]"
+          >
             <a href={donateUrl} target="_blank" rel="noopener noreferrer">
               <WhatsAppIcon className="h-4 w-4" />
               {t('Case.donateViaWhatsApp')}

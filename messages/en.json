@@ -1,7 +1,9 @@
 {
   "Common": {
     "appName": "Help",
-    "tagline": "Help",
+    "tagline": "Direct, transparent giving — straight to the people who need it.",
+    "metaDescription": "Browse verified charity cases and donate directly to the people who need it most via WhatsApp. Transparent, direct giving with no middlemen.",
+    "keywords": "donation platform,charity donations,islamic charity,zakat,sadaqah,medical fundraising,help people in need,Egypt charity,donate via WhatsApp",
     "donateNow": "Donate Now",
     "learnMore": "Read Details",
     "back": "Back",
@@ -11,7 +13,11 @@
     "edit": "Edit",
     "loading": "Loading...",
     "saving": "Saving...",
-    "verified": "Verified"
+    "verified": "Verified",
+    "uploadingImage": "Uploading image...",
+    "imagePreviewAlt": "Preview",
+    "uploadFailed": "Image upload failed. Please try again.",
+    "unknownError": "Something went wrong. Please try again."
   },
   "Header": {
     "home": "Home",
@@ -20,7 +26,9 @@
     "signIn": "Sign In",
     "language": "Language",
     "languageEn": "English",
-    "languageAr": "العربية"
+    "languageAr": "العربية",
+    "menu": "Menu",
+    "toggleTheme": "Toggle theme"
   },
   "Footer": {
     "tagline": "Empowering communities through transparent, direct giving.",
@@ -33,7 +41,7 @@
     "linkedIn": "LinkedIn",
     "github": "GitHub",
     "portfolio": "Portfolio",
-    "whatsAlwaldan":"WhatsApp Masjed Alwaldan "
+    "whatsAlwaldan": "WhatsApp Masjed Alwaldan"
   },
   "Home": {
     "heroTitle": "Make a Difference Today",
@@ -41,7 +49,13 @@
     "browseCases": "Browse Cases",
     "casesHeading": "Cases That Need You",
     "casesSubheading": "Real people, real stories, real impact. Choose a case and reach out directly on WhatsApp.",
-    "noCases": "No active cases right now. Please check back soon."
+    "noCases": "No active cases right now. Please check back soon.",
+    "trustReachesValue": "100%",
+    "trustReachesLabel": "Reaches the recipient",
+    "trustVerifiedValue": "Verified",
+    "trustVerifiedLabel": "Every case reviewed",
+    "trustDirectValue": "Direct",
+    "trustDirectLabel": "Via WhatsApp"
   },
   "Case": {
     "raised": "raised",
@@ -85,17 +99,18 @@
     "whatsappNumber": "WhatsApp Number",
     "whatsappNumberPlaceholder": "e.g. 01017134627 (digits only, without +2)",
     "descriptionPlaceholder": "Tell people about this case, why help is needed, and how their donation will be used...",
-    "thumbnail": "Thumbnail Image URL",
-    "thumbnailHint": "Paste a publicly accessible image URL",
+    "thumbnail": "Thumbnail Image",
+    "thumbnailHint": "Upload a clear, representative photo for this case",
     "goalAmount": "Goal Amount (optional)",
     "goalPlaceholder": "5000",
-    "currentAmount": "Current Amount",
+    "currentAmount": "Current Amount (optional)",
     "currentAmountPlaceholder": "0",
     "currency": "EGP",
     "status": "Status",
     "statusActive": "Active",
     "statusPaused": "Paused",
     "statusCompleted": "Completed",
+    "statusArchived": "Archived",
     "createButton": "Create Case",
     "updateButton": "Update Case"
   }

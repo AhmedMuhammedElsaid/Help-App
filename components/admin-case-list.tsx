@@ -3,6 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { Case } from '@/lib/types';
+import { formatAmount } from '@/lib/format';
+import { caseStatusLabel } from '@/lib/case-status';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -37,24 +39,24 @@ export function AdminCaseList({ cases }: AdminCaseListProps) {
         return (
           <div
             key={c.id}
-            className="flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center"
+            className="flex flex-col gap-4 rounded-xl border p-4 transition-colors hover:bg-muted/40 sm:flex-row sm:items-center"
           >
             <div className="flex-1 min-w-0">
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <h3 className="font-semibold text-foreground truncate">{c.title}</h3>
-                <Badge variant="secondary" className="capitalize">
-                  {c.status}
+                <Badge variant="secondary">
+                  {caseStatusLabel(t, c.status)}
                 </Badge>
               </div>
               {hasGoal && (
                 <div className="space-y-1">
                   <div className="flex items-baseline gap-2 text-sm">
                     <span className="font-semibold text-foreground">
-                      {Number(c.current_amount).toLocaleString()} {c.currency}
+                      {formatAmount(Number(c.current_amount))} {c.currency}
                     </span>
                     <span className="text-muted-foreground">
                       {t('Case.goal', {
-                        goal: `${Number(c.goal_amount).toLocaleString()} ${c.currency}`,
+                        goal: `${formatAmount(Number(c.goal_amount))} ${c.currency}`,
                       })}
                     </span>
                   </div>

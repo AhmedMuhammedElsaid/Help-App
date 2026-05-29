@@ -50,10 +50,13 @@ export default function LoginPage() {
     <div className="flex min-h-[80vh] w-full items-center justify-center bg-background p-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-xl font-bold text-primary">
-            <Heart className="h-5 w-5" fill="currentColor" />
+          <Link href="/" className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <Heart className="h-[1.15rem] w-[1.15rem]" fill="currentColor" />
+            </span>
             {t('Common.appName')}
           </Link>
+          <div className="mx-auto mt-6 h-[3px] w-10 rounded-full bg-primary" />
         </div>
         <Card>
           <CardHeader>

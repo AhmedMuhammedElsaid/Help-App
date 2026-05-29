@@ -10,12 +10,23 @@ import {
 
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
+import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 
 import { routing } from '@/i18n/routing';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { ThemeProvider } from '@/components/theme-provider';
 
 import '../globals.css';
+
+// Arabic webfont — Geist has no Arabic glyphs, so the sans stack in globals.css
+// falls through to this for Arabic characters in both locales.
+const ibmPlexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ['arabic'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-ibm-plex-arabic',
+  display: 'swap',
+});
 
 // Base URL without locale – read from env for production
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://help-app-ahmed-elsaid.vercel.app';
@@ -37,7 +48,7 @@ export async function generateMetadata({
   });
 
   const title = t('appName');
-  const description = t('tagline');
+  const description = t('metaDescription');
 
   // Full canonical URL for this locale
   const canonicalUrl = `${BASE_URL}/${locale}`;
@@ -63,21 +74,7 @@ export async function generateMetadata({
       telephone: false, // set to true if you want phone numbers to be links
     },
 
-    keywords: [
-      'donation platform',
-      'charity donations',
-      'islamic charity',
-      'zakat donations',
-      'sadaqah platform',
-      'medical fundraising',
-      'help people in need',
-      'donation website',
-      'online charity platform',
-      'تبرعات',
-      'صدقة',
-      'زكاة',
-      'جمع تبرعات',
-    ],
+    keywords: t('keywords').split(',').map((k) => k.trim()),
 
     authors: [
       {
@@ -120,7 +117,8 @@ export async function generateMetadata({
 
     openGraph: {
       type: 'website',
-      locale: locale === 'ar' ? 'ar_AR' : 'en_US',
+      locale: locale === 'ar' ? 'ar_EG' : 'en_US',
+      alternateLocale: locale === 'ar' ? 'en_US' : 'ar_EG',
       url: canonicalUrl,
       siteName: title,
       title: title,
@@ -139,8 +137,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title: title,
       description: description,
-      images: ['/og-image.jpg'], // use a 1200x600 image, not heart.png
-      site: '@yourhandle', // optional: add your Twitter handle
+      images: ['/og-image.jpg'], // 1200x630 image in /public
     },
 
     category: 'charity',
@@ -150,8 +147,11 @@ export async function generateMetadata({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#ffffff',
-  colorScheme: 'light',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
+  ],
+  colorScheme: 'light dark',
 };
 
 export default async function LocaleLayout({
@@ -177,12 +177,19 @@ export default async function LocaleLayout({
         {/* Additional SEO meta can be added here if needed */}
       </head>
       <body
-        className={`min-h-screen flex flex-col font-sans antialiased ${GeistSans.variable} ${GeistMono.variable}`}
+        className={`min-h-screen flex flex-col font-sans antialiased ${GeistSans.variable} ${GeistMono.variable} ${ibmPlexArabic.variable}`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>
