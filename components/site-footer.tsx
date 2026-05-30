@@ -53,15 +53,15 @@ export function SiteFooter() {
               <li className="text-muted-foreground">
                 {t('Footer.whats')}:{' '}
                 <a
-                  href="https://wa.me/201025533447"
+                  href="https://wa.me/201017134627"
                   className="font-medium text-primary transition-colors hover:underline"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  01025533447
+                  01017134627
                 </a>
               </li>
-              <li className="text-muted-foreground">
+              {/* <li className="text-muted-foreground">
                 {t('Footer.whatsAlwaldan')}:{' '}
                 <a
                   href="https://wa.me/201222395552"
@@ -71,7 +71,7 @@ export function SiteFooter() {
                 >
                   01222395552
                 </a>
-              </li>
+              </li> */}
             </ul>
           </div>
 
