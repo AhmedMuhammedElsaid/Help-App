@@ -69,6 +69,7 @@ donation-app/
 │   ├── case-card.tsx                     # Case card on grid (WhatsApp + Learn More buttons)
 │   ├── case-form.tsx                     # Create/edit case form (client, uploads images to Supabase Storage)
 │   ├── admin-case-list.tsx               # Admin list view of cases
+│   ├── json-ld.tsx                       # Server component: renders <script type="application/ld+json"> (§12)
 │   └── theme-provider.tsx                # next-themes wrapper (installed but NOT mounted in layout)
 ├── i18n/
 │   ├── routing.ts                        # Locales config: ['en', 'ar'], default 'ar'
@@ -362,5 +363,6 @@ To add more static routes to the sitemap, extend the `staticEntries` array in `a
 - `lib/types.ts` — `Case` type and `LocalizedText`
 - `lib/localized.ts` — `localized(value, locale)` helper; use this whenever reading `title`/`slug`/`description` from a `Case`
 - `lib/cases.ts` — `getCaseBySlug()` with cross-locale self-heal; used by the case detail route
+- `components/json-ld.tsx` — JSON-LD helper; pass any schema.org object and it renders the script tag
 - `messages/en.json` — the canonical list of all UI strings
 - `i18n/routing.ts` — single source of truth for supported locales
